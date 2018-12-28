@@ -77,6 +77,14 @@
             </li>
             %endfor
           </ul>
+          <p>Here are the libraries</p>
+          <ul class="library-listing courses-list">
+            %for library in libraries:
+            <li class="courses-listing-item">
+              <%include file="../course.html" args="course=library" />
+            </li>
+            %endfor
+          </ul>
         </div>
 
 

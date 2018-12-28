@@ -217,8 +217,11 @@ def courses(request):
     """
     courses_list = []
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
+    library_list = get_courses(request.user, None, { "display_name__contains":"Library"})
+    print(library_list)
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
         courses_list = get_courses(request.user)
+
 
         if configuration_helpers.get_value("ENABLE_COURSE_SORTING_BY_START_DATE",
                                            settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"]):
@@ -233,6 +236,7 @@ def courses(request):
         "courseware/courses.html",
         {
             'courses': courses_list,
+            'libraries': library_list,
             'course_discovery_meanings': course_discovery_meanings,
             'programs_list': programs_list,
             'journal_info': get_journals_context(request),  # TODO: Course Listing Plugin required
@@ -1455,6 +1459,7 @@ def render_xblock(request, usage_key_string, check_if_enrolled=True):
 
     requested_view = request.GET.get('view', 'student_view')
     if requested_view != 'student_view':
+        print("dude ask for student view")
         return HttpResponseBadRequest("Rendering of the xblock view '{}' is not supported.".format(requested_view))
 
     with modulestore().bulk_operations(course_key):

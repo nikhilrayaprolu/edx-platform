@@ -17,6 +17,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locator import LibraryUsageLocator
+from django.contrib.auth import authenticate, login
 from pytz import UTC
 from six import text_type
 from web_fragments.fragment import Fragment
@@ -69,6 +70,7 @@ from xmodule.modulestore.inheritance import own_metadata
 from xmodule.services import ConfigurationService, SettingsService
 from xmodule.tabs import CourseTabList
 from xmodule.x_module import DEPRECATION_VSCOMPAT_EVENT, PREVIEW_VIEWS, STUDENT_VIEW, STUDIO_VIEW
+from django.views.decorators.csrf import csrf_exempt
 
 __all__ = [
     'orphan_handler', 'xblock_handler', 'xblock_view_handler', 'xblock_outline_handler', 'xblock_container_handler'
@@ -107,8 +109,8 @@ def _filter_entrance_exam_grader(graders):
 
 
 @require_http_methods(("DELETE", "GET", "PUT", "POST", "PATCH"))
-@login_required
 @expect_json
+@csrf_exempt
 def xblock_handler(request, usage_key_string):
     """
     The restful handler for xblock requests.
@@ -160,8 +162,19 @@ def xblock_handler(request, usage_key_string):
                      if duplicate_source_locator is not present
               The locator (unicode representation of a UsageKey) for the created xblock (minus children) is returned.
     """
+    if not request.user.is_authenticated:
+        print(request.POST)
+
+        username = request.json.get('username')
+        password = request.json.get('password')
+        print(username, password)
+        user = authenticate(request, username=username, password=password)
+        print(user)
+        if user is not None:
+            login(request, user)
     if usage_key_string:
         usage_key = usage_key_with_run(usage_key_string)
+        print("usage key read")
 
         access_check = has_studio_read_access if request.method == 'GET' else has_studio_write_access
         if not access_check(request.user, usage_key.course_key):
@@ -209,7 +222,6 @@ def xblock_handler(request, usage_key_string):
         if 'duplicate_source_locator' in request.json:
             parent_usage_key = usage_key_with_run(request.json['parent_locator'])
             duplicate_source_usage_key = usage_key_with_run(request.json['duplicate_source_locator'])
-
             source_course = duplicate_source_usage_key.course_key
             dest_course = parent_usage_key.course_key
             if (
@@ -217,7 +229,6 @@ def xblock_handler(request, usage_key_string):
                     not has_studio_read_access(request.user, source_course)
             ):
                 raise PermissionDenied()
-
             dest_usage_key = _duplicate_item(
                 parent_usage_key,
                 duplicate_source_usage_key,
@@ -490,6 +501,7 @@ def _save_xblock(user, xblock, data=None, children_strings=None, metadata=None, 
     to default).
 
     """
+    print(user, data)
     store = modulestore()
     # Perform all xblock changes within a (single-versioned) transaction
     with store.bulk_operations(xblock.location.course_key):

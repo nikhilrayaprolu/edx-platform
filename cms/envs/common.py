@@ -479,6 +479,12 @@ MIDDLEWARE_CLASSES = [
     'openedx.core.djangoapps.header_control.middleware.HeaderControlMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+
+# CORS and CSRF
+    'corsheaders.middleware.CorsMiddleware',
+    'openedx.core.djangoapps.cors_csrf.middleware.CorsCSRFMiddleware',
+    'openedx.core.djangoapps.cors_csrf.middleware.CsrfCrossDomainCookieMiddleware',
+
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'edx_rest_framework_extensions.auth.jwt.middleware.JwtAuthCookieMiddleware',
@@ -487,8 +493,8 @@ MIDDLEWARE_CLASSES = [
     'django_sites_extensions.middleware.RedirectMiddleware',
 
     # Instead of SessionMiddleware, we use a more secure version
-    # 'django.contrib.sessions.middleware.SessionMiddleware',
-    'openedx.core.djangoapps.safe_sessions.middleware.SafeSessionMiddleware',
+     'django.contrib.sessions.middleware.SessionMiddleware',
+    #'openedx.core.djangoapps.safe_sessions.middleware.SafeSessionMiddleware',
 
     'method_override.middleware.MethodOverrideMiddleware',
 
@@ -1121,6 +1127,7 @@ INSTALLED_APPS = [
 
     # Microsite configuration application
     'microsite_configuration',
+    'corsheaders',
 
     # Static i18n support
     'statici18n',
@@ -1402,7 +1409,7 @@ FILES_AND_UPLOAD_TYPE_FILTERS = {
              'application/java-archive', 'text/x-python-script', 'application/x-ruby', 'application/mathematica',
              'text/coffeescript', 'text/x-matlab', 'application/sql', 'text/php', ]
 }
-
+CORS_ORIGIN_ALLOW_ALL = True
 # Default to no Search Engine
 SEARCH_ENGINE = None
 ELASTIC_FIELD_MAPPINGS = {

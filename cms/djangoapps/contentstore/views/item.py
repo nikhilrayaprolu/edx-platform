@@ -22,7 +22,8 @@ from six import text_type
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import Scope
-
+from django.contrib.auth import authenticate, login
+from django.views.decorators.csrf import csrf_exempt
 import dogstats_wrapper as dog_stats_api
 from cms.lib.xblock.authoring_mixin import VISIBILITY_VIEW
 from contentstore.utils import (
@@ -107,7 +108,7 @@ def _filter_entrance_exam_grader(graders):
 
 
 @require_http_methods(("DELETE", "GET", "PUT", "POST", "PATCH"))
-@login_required
+@csrf_exempt
 @expect_json
 def xblock_handler(request, usage_key_string):
     """
@@ -160,6 +161,16 @@ def xblock_handler(request, usage_key_string):
                      if duplicate_source_locator is not present
               The locator (unicode representation of a UsageKey) for the created xblock (minus children) is returned.
     """
+    if not request.user.is_authenticated:
+        print(request.POST)
+
+        username = request.json.get('username')
+        password = request.json.get('password')
+        print(username, password)
+        user = authenticate(request, username=username, password=password)
+        print(user)
+        if user is not None:
+            login(request, user)
     if usage_key_string:
         usage_key = usage_key_with_run(usage_key_string)
 

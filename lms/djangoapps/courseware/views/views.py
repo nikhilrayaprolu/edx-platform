@@ -214,6 +214,7 @@ def courses(request):
     """
     courses_list = []
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
+    library_list = get_courses(request.user, None, {"display_name__contains": "Library"})
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
         courses_list = get_courses(request.user)
 
@@ -230,6 +231,7 @@ def courses(request):
         "courseware/courses.html",
         {
             'courses': courses_list,
+            'libraries': library_list,
             'course_discovery_meanings': course_discovery_meanings,
             'programs_list': programs_list
         }

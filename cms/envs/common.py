@@ -478,7 +478,9 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
-
+    'corsheaders.middleware.CorsMiddleware',
+    'openedx.core.djangoapps.cors_csrf.middleware.CorsCSRFMiddleware',
+    'openedx.core.djangoapps.cors_csrf.middleware.CsrfCrossDomainCookieMiddleware',
     # Allows us to define redirects via Django admin
     'django_sites_extensions.middleware.RedirectMiddleware',
 
@@ -597,7 +599,7 @@ MODULESTORE = {
 MODULESTORE_FIELD_OVERRIDE_PROVIDERS = ()
 
 #################### Python sandbox ############################################
-
+CORS_ORIGIN_ALLOW_ALL = True
 CODE_JAIL = {
     # Path to a sandboxed Python executable.  None means don't bother.
     'python_bin': None,

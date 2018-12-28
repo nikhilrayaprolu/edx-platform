@@ -26,8 +26,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1a\n"
 "Report-Msgid-Bugs-To: openedx-translation@googlegroups.com\n"
-"POT-Creation-Date: 2018-11-25 20:36+0000\n"
-"PO-Revision-Date: 2018-11-25 20:37:03.145083\n"
+"POT-Creation-Date: 2018-12-23 20:36+0000\n"
+"PO-Revision-Date: 2018-12-23 20:37:01.665688\n"
 "Last-Translator: \n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
 "Language: en\n"
@@ -4558,6 +4558,14 @@ msgid ""
 msgstr ""
 
 #: lms/static/js/student_account/views/account_settings_factory.js
+msgid "Secondary Email Address"
+msgstr ""
+
+#: lms/static/js/student_account/views/account_settings_factory.js
+msgid "You may access your account when single-sign on is not available."
+msgstr ""
+
+#: lms/static/js/student_account/views/account_settings_factory.js
 #: openedx/features/learner_profile/static/learner_profile/js/learner_profile_factory.js
 msgid "Full Name"
 msgstr ""
@@ -5121,10 +5129,6 @@ msgstr ""
 
 #: cms/static/js/base.js
 msgid "This link will open in a modal window"
-msgstr ""
-
-#: cms/static/js/certificates/collections/certificates.js
-msgid "Could not parse certificate JSON. %(message)s"
 msgstr ""
 
 #: cms/static/js/certificates/models/certificate.js
@@ -5886,7 +5890,11 @@ msgid "Visibility"
 msgstr ""
 
 #: cms/static/js/views/modals/edit_xblock.js
-msgid "Editing: %(title)s"
+msgid "Editing: {title}"
+msgstr ""
+
+#: cms/static/js/views/modals/edit_xblock.js
+msgid "Plugins"
 msgstr ""
 
 #: cms/static/js/views/modals/edit_xblock.js
@@ -7971,6 +7979,20 @@ msgstr ""
 msgid "Reset Password"
 msgstr ""
 
+#: lms/templates/student_account/account_recovery.underscore
+msgid "Account Recovery"
+msgstr ""
+
+#: lms/templates/student_account/account_recovery.underscore
+msgid ""
+"Please enter your secondary email address below and we will send you "
+"instructions for recovering your account and setting a new password."
+msgstr ""
+
+#: lms/templates/student_account/account_recovery.underscore
+msgid "Recover my account"
+msgstr ""
+
 #: lms/templates/student_account/account_settings.underscore
 msgid "Account Settings"
 msgstr ""
@@ -9852,6 +9874,10 @@ msgstr ""
 msgid ""
 "If the subsection does not have a due date, learners always see their scores"
 " when they submit answers to assessments."
+msgstr ""
+
+#: cms/templates/js/show-textbook.underscore
+msgid "PDF Chapters"
 msgstr ""
 
 #: cms/templates/js/show-textbook.underscore

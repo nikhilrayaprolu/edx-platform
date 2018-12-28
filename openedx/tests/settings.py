@@ -54,6 +54,7 @@ DATABASES = {
 FEATURES = {}
 
 INSTALLED_APPS = (
+    'django_comment_common',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -86,7 +87,7 @@ INSTALLED_APPS = (
     'completion',
 )
 
-LMS_ROOT_URL = 'http://localhost:8000'
+LMS_ROOT_URL = "http://localhost:8000"
 
 MEDIA_ROOT = tempfile.mkdtemp()
 

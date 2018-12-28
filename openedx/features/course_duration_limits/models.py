@@ -11,22 +11,25 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
-from xmodule.partitions.partitions import ENROLLMENT_TRACK_PARTITION_ID
 
 from course_modes.models import CourseMode
-from lms.djangoapps.courseware.masquerade import get_masquerade_role, get_course_masquerade, \
-    is_masquerading_as_specific_student
-
 from experiments.models import ExperimentData
+from lms.djangoapps.courseware.masquerade import (
+    get_course_masquerade,
+    get_masquerade_role,
+    is_masquerading_as_specific_student
+)
 from openedx.core.djangoapps.config_model_utils.models import StackedConfigurationModel
+from openedx.features.content_type_gating.helpers import has_staff_roles
 from openedx.features.content_type_gating.partitions import CONTENT_GATING_PARTITION_ID, CONTENT_TYPE_GATE_GROUP_IDS
 from openedx.features.course_duration_limits.config import (
     CONTENT_TYPE_GATING_FLAG,
+    FEATURE_BASED_ENROLLMENT_GLOBAL_KILL_FLAG,
     EXPERIMENT_ID,
     EXPERIMENT_DATA_HOLDBACK_KEY
 )
 from student.models import CourseEnrollment
-from student.roles import CourseBetaTesterRole, CourseInstructorRole, CourseStaffRole
+from xmodule.partitions.partitions import ENROLLMENT_TRACK_PARTITION_ID
 
 
 @python_2_unicode_compatible
@@ -49,6 +52,34 @@ class CourseDurationLimitConfig(StackedConfigurationModel):
     )
 
     @classmethod
+    def has_full_access_role_in_masquerade(cls, user, course_key, course_masquerade):
+        """
+        When masquerading, the course duration limits will never trigger the course to expire, redirecting the user.
+        The roles of the masquerade user are still used to determine whether the course duration limit banner displays.
+        Another banner also displays if the course is expired for the masquerade user.
+        Both banners will appear if the masquerade user does not have any of the following roles:
+        Staff, Instructor, Beta Tester, Forum Community TA, Forum Group Moderator, Forum Moderator, Forum Administrator
+        """
+        masquerade_role = get_masquerade_role(user, course_key)
+        verified_mode_id = settings.COURSE_ENROLLMENT_MODES.get(CourseMode.VERIFIED, {}).get('id')
+        # Masquerading users can select the the role of a verified users without selecting a specific user
+        is_verified = (course_masquerade.user_partition_id == ENROLLMENT_TRACK_PARTITION_ID
+                       and course_masquerade.group_id == verified_mode_id)
+        # Masquerading users can select the role of staff without selecting a specific user
+        is_staff = masquerade_role == 'staff'
+        # Masquerading users can select other full access roles for which content type gating is disabled
+        is_full_access = (course_masquerade.user_partition_id == CONTENT_GATING_PARTITION_ID
+                          and course_masquerade.group_id == CONTENT_TYPE_GATE_GROUP_IDS['full_access'])
+        # When masquerading as a specific user, we can check that user's staff roles as we would with a normal user
+        is_staff_role = False
+        if course_masquerade.user_name:
+            is_staff_role = has_staff_roles(user, course_key)
+
+        if is_verified or is_full_access or is_staff or is_staff_role:
+            return True
+        return False
+
+    @classmethod
     def enabled_for_enrollment(cls, enrollment=None, user=None, course_key=None):
         """
         Return whether Course Duration Limits are enabled for this enrollment.
@@ -65,6 +96,10 @@ class CourseDurationLimitConfig(StackedConfigurationModel):
             user: The user being queried.
             course_key: The CourseKey of the course being queried.
         """
+
+        if FEATURE_BASED_ENROLLMENT_GLOBAL_KILL_FLAG.is_enabled():
+            return False
+
         if CONTENT_TYPE_GATING_FLAG.is_enabled():
             return True
 
@@ -83,28 +118,16 @@ class CourseDurationLimitConfig(StackedConfigurationModel):
         if enrollment is None:
             enrollment = CourseEnrollment.get_enrollment(user, course_key)
 
-        # if the user is has a role of staff, instructor or beta tester their access should not expire
         if user is None and enrollment is not None:
             user = enrollment.user
 
-        if user:
+        if user and user.id:
             course_masquerade = get_course_masquerade(user, course_key)
             if course_masquerade:
-                verified_mode_id = settings.COURSE_ENROLLMENT_MODES.get(CourseMode.VERIFIED, {}).get('id')
-                is_verified = (course_masquerade.user_partition_id == ENROLLMENT_TRACK_PARTITION_ID
-                               and course_masquerade.group_id == verified_mode_id)
-                is_full_access = (course_masquerade.user_partition_id == CONTENT_GATING_PARTITION_ID
-                                  and course_masquerade.group_id == CONTENT_TYPE_GATE_GROUP_IDS['full_access'])
-                is_staff = get_masquerade_role(user, course_key) == 'staff'
-                if is_verified or is_full_access or is_staff:
+                if cls.has_full_access_role_in_masquerade(user, course_key, course_masquerade):
                     return False
-            else:
-                staff_role = CourseStaffRole(course_key).has_user(user)
-                instructor_role = CourseInstructorRole(course_key).has_user(user)
-                beta_tester_role = CourseBetaTesterRole(course_key).has_user(user)
-
-                if staff_role or instructor_role or beta_tester_role:
-                    return False
+            elif has_staff_roles(user, course_key):
+                return False
 
         # enrollment might be None if the user isn't enrolled. In that case,
         # return enablement as if the user enrolled today
@@ -112,7 +135,6 @@ class CourseDurationLimitConfig(StackedConfigurationModel):
             return cls.enabled_for_course(course_key=course_key, target_datetime=timezone.now())
         else:
             # TODO: clean up as part of REV-100
-            experiment_data_holdback_key = EXPERIMENT_DATA_HOLDBACK_KEY.format(user)
             is_in_holdback = False
             no_masquerade = get_course_masquerade(user, course_key) is None
             student_masquerade = is_masquerading_as_specific_student(user, course_key)
@@ -121,7 +143,7 @@ class CourseDurationLimitConfig(StackedConfigurationModel):
                     holdback_value = ExperimentData.objects.get(
                         user=user,
                         experiment_id=EXPERIMENT_ID,
-                        key=experiment_data_holdback_key,
+                        key=EXPERIMENT_DATA_HOLDBACK_KEY,
                     ).value
                     is_in_holdback = holdback_value == 'True'
                 except ExperimentData.DoesNotExist:
@@ -146,6 +168,10 @@ class CourseDurationLimitConfig(StackedConfigurationModel):
             course_key: The CourseKey of the course being queried.
             target_datetime: The datetime to checked enablement as of. Defaults to the current date and time.
         """
+
+        if FEATURE_BASED_ENROLLMENT_GLOBAL_KILL_FLAG.is_enabled():
+            return False
+
         if CONTENT_TYPE_GATING_FLAG.is_enabled():
             return True
 
@@ -166,6 +192,10 @@ class CourseDurationLimitConfig(StackedConfigurationModel):
         Arguments:
             target_datetime (:class:`datetime.datetime`): The datetime that ``enabled_as_of`` must be equal to or before
         """
+
+        if FEATURE_BASED_ENROLLMENT_GLOBAL_KILL_FLAG.is_enabled():
+            return True
+
         if CONTENT_TYPE_GATING_FLAG.is_enabled():
             return True
 

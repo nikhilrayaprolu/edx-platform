@@ -26,8 +26,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1a\n"
 "Report-Msgid-Bugs-To: openedx-translation@googlegroups.com\n"
-"POT-Creation-Date: 2018-11-25 20:36+0000\n"
-"PO-Revision-Date: 2018-11-25 20:37:03.145083\n"
+"POT-Creation-Date: 2018-12-23 20:36+0000\n"
+"PO-Revision-Date: 2018-12-23 20:37:01.665688\n"
 "Last-Translator: \n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
 "Language: rtl\n"
@@ -4834,6 +4834,14 @@ msgstr ""
 "غخع قثذثهدث وثسسشلثس بقخو {platform_name} شري ذخعقسث فثشوس شف فاهس شييقثسس."
 
 #: lms/static/js/student_account/views/account_settings_factory.js
+msgid "Secondary Email Address"
+msgstr "سثذخريشقغ ثوشهم شييقثسس"
+
+#: lms/static/js/student_account/views/account_settings_factory.js
+msgid "You may access your account when single-sign on is not available."
+msgstr "غخع وشغ شذذثسس غخعق شذذخعرف صاثر سهرلمث-سهلر خر هس رخف شدشهمشزمث."
+
+#: lms/static/js/student_account/views/account_settings_factory.js
 #: openedx/features/learner_profile/static/learner_profile/js/learner_profile_factory.js
 msgid "Full Name"
 msgstr "بعمم رشوث"
@@ -5442,10 +5450,6 @@ msgstr "فاهس مهرن صهمم خحثر هر ش رثص زقخصسثق صهر
 #: cms/static/js/base.js
 msgid "This link will open in a modal window"
 msgstr "فاهس مهرن صهمم خحثر هر ش وخيشم صهريخص"
-
-#: cms/static/js/certificates/collections/certificates.js
-msgid "Could not parse certificate JSON. %(message)s"
-msgstr "ذخعمي رخف حشقسث ذثقفهبهذشفث تسخر. %(message)s"
 
 #: cms/static/js/certificates/models/certificate.js
 msgid "Certificate name is required."
@@ -6247,8 +6251,12 @@ msgid "Visibility"
 msgstr "دهسهزهمهفغ"
 
 #: cms/static/js/views/modals/edit_xblock.js
-msgid "Editing: %(title)s"
-msgstr "ثيهفهرل: %(title)s"
+msgid "Editing: {title}"
+msgstr "ثيهفهرل: {title}"
+
+#: cms/static/js/views/modals/edit_xblock.js
+msgid "Plugins"
+msgstr "حمعلهرس"
 
 #: cms/static/js/views/modals/edit_xblock.js
 #: lms/templates/ccx/schedule.underscore
@@ -8445,6 +8453,22 @@ msgstr "ذاشرلث وغ ثوشهم شييقثسس"
 msgid "Reset Password"
 msgstr "قثسثف حشسسصخقي"
 
+#: lms/templates/student_account/account_recovery.underscore
+msgid "Account Recovery"
+msgstr "شذذخعرف قثذخدثقغ"
+
+#: lms/templates/student_account/account_recovery.underscore
+msgid ""
+"Please enter your secondary email address below and we will send you "
+"instructions for recovering your account and setting a new password."
+msgstr ""
+"حمثشسث ثرفثق غخعق سثذخريشقغ ثوشهم شييقثسس زثمخص شري صث صهمم سثري غخع "
+"هرسفقعذفهخرس بخق قثذخدثقهرل غخعق شذذخعرف شري سثففهرل ش رثص حشسسصخقي."
+
+#: lms/templates/student_account/account_recovery.underscore
+msgid "Recover my account"
+msgstr "قثذخدثق وغ شذذخعرف"
+
 #: lms/templates/student_account/account_settings.underscore
 msgid "Account Settings"
 msgstr "شذذخعرف سثففهرلس"
@@ -10485,6 +10509,10 @@ msgid ""
 msgstr ""
 "هب فاث سعزسثذفهخر يخثس رخف اشدث ش يعث يشفث, مثشقرثقس شمصشغس سثث فاثهق سذخقثس"
 " صاثر فاثغ سعزوهف شرسصثقس فخ شسسثسسوثرفس."
+
+#: cms/templates/js/show-textbook.underscore
+msgid "PDF Chapters"
+msgstr "حيب ذاشحفثقس"
 
 #: cms/templates/js/show-textbook.underscore
 msgid "View Live"

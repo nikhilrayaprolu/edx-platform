@@ -1,7 +1,6 @@
 /* Javascript for ShareXBlock. */
 function ShareXBlock(runtime, element) {
-    STUDIO_BASE_URL = 'http://localhost:18010'
-    LMS_BASE_URL = 'http://localhost:18000'
+    STUDIO_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':18010'
     list_author_URL = '/api/courses/v1/courses/'
 
     function updateCount(result) {
@@ -131,6 +130,10 @@ function ShareXBlock(runtime, element) {
 
     }
 
+    function updatePublish(result) {
+
+    }
+
     var handlerUrl = runtime.handlerUrl(element, 'increment_count');
 
     
@@ -146,7 +149,7 @@ function ShareXBlock(runtime, element) {
         $('.edit-parent-locator').value
         $.ajax({
             type: "POST",
-            url: "http://localhost:18010/xblock/",
+            url:  STUDIO_BASE_URL + "/xblock/",
             contentType: "application/json",
             data: JSON.stringify({
                 username: $('.edit-user-name').val(),
@@ -154,7 +157,7 @@ function ShareXBlock(runtime, element) {
                 duplicate_source_locator: $('.edit-duplicate-source-locator').val(),
                 parent_locator: $('.edit-parent-locator').val(),
 }),
-            success: updateCourses
+            success: updatePublish
         });
     });
     $(function ($) {

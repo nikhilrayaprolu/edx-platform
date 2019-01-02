@@ -64,10 +64,14 @@
             %endfor
           </ul>
 
-          <p>Here are the libraries</p>
-           <ul class="library-listing courses-list">
+
+        </div>
+
+        <div class="courses${'' if course_discovery_enabled else ' no-course-discovery'}" role="region" aria-label="${_('List of Courses')}">
+          <p>Libraries</p>
+           <ul class="library-listing" style="list-style: none; display: block;margin: 0;padding: 0;">
              %for library in libraries:
-             <li class="courses-listing-item">
+             <li class="courses-listing-item" style="float: left;margin-right: 2.35765%;width: 23.23176%; box-sizing: border-box; max-height: 360px;">
                <%include file="../course.html" args="course=library" />
              </li>
              %endfor

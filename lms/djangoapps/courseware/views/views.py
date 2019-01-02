@@ -106,6 +106,7 @@ from xmodule.x_module import STUDENT_VIEW
 
 from ..entrance_exams import user_can_skip_entrance_exam
 from ..module_render import get_module, get_module_by_usage_id, get_module_for_descriptor
+from django.db.models import Q
 
 log = logging.getLogger("edx.courseware")
 
@@ -214,9 +215,9 @@ def courses(request):
     """
     courses_list = []
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
-    library_list = get_courses(request.user, None, {"display_name__contains": "Library"})
+    library_list = get_courses(request.user, None, Q(display_name__contains = 'Library'))
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
-        courses_list = get_courses(request.user)
+        courses_list = get_courses(request.user, None, ~Q(display_name__contains = 'Library'))
 
         if configuration_helpers.get_value("ENABLE_COURSE_SORTING_BY_START_DATE",
                                            settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"]):

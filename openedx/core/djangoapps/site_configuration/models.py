@@ -11,6 +11,11 @@ from django.dispatch import receiver
 from jsonfield.fields import JSONField
 from model_utils.models import TimeStampedModel
 
+from storages.backends.s3boto import S3BotoStorage
+
+from openedx.core.djangoapps.youngsphere.sites.utils import get_initial_sass_variables, get_initial_page_elements, \
+    compile_sass
+
 logger = getLogger(__name__)  # pylint: disable=invalid-name
 
 
@@ -30,12 +35,32 @@ class SiteConfiguration(models.Model):
         blank=True,
         load_kwargs={'object_pairs_hook': collections.OrderedDict}
     )
+    #Young Sphere Later stages
+    #sass_variables = JSONField(blank=True, default=get_initial_sass_variables)
+    #page_elements = JSONField(blank=True, default=get_initial_page_elements)
 
     def __unicode__(self):
         return u"<SiteConfiguration: {site} >".format(site=self.site)
 
     def __repr__(self):
         return self.__unicode__()
+
+    def save(self, **kwargs):
+        # When creating a new object, save default microsite values. Not implemented as a default method on the field
+        # because it depends on other fields that should be already filled.
+        if not self.id:
+            self.values = self._get_initial_microsite_values()
+
+        # fix for a bug with some pages requiring uppercase platform_name variable
+        self.values['PLATFORM_NAME'] = self.values.get('platform_name', '')
+
+        super(SiteConfiguration, self).save(**kwargs)
+
+        # recompile SASS on every save
+        #YoungSphere Later Stages
+        #self.compile_microsite_sass()
+        #self.collect_css_file()
+        return self
 
     def get_value(self, name, default=None):
         """
@@ -111,6 +136,75 @@ class SiteConfiguration(models.Model):
             True if given organization is present in site configurations otherwise False.
         """
         return org in cls.get_all_orgs()
+    def delete(self, using=None):
+        self.delete_css_override()
+        super(SiteConfiguration, self).delete(using=using)
+
+    def compile_microsite_sass(self):
+        css_output = compile_sass('main.scss', custom_branding=self._sass_var_override)
+        file_name = self.get_value('css_overrides_file')
+        if settings.USE_S3_FOR_CUSTOMER_THEMES:
+            storage = S3BotoStorage(
+                location="customer_themes",
+            )
+            with storage.open(file_name, 'w') as f:
+                f.write(css_output.encode('utf-8'))
+        else:
+            theme_folder = os.path.join(settings.COMPREHENSIVE_THEME_DIRS[0], 'customer_themes')
+            theme_file = os.path.join(theme_folder, file_name)
+            with open(theme_file, 'w') as f:
+                f.write(css_output.encode('utf-8'))
+
+    def get_css_url(self):
+        if settings.USE_S3_FOR_CUSTOMER_THEMES:
+            kwargs = {
+                'location': "customer_themes",
+            }
+            storage = get_storage_class()(**kwargs)
+            return storage.url(self.get_value('css_overrides_file'))
+        else:
+            return static("customer_themes/{}".format(self.get_value('css_overrides_file')))
+
+    def set_sass_variables(self, entries):
+        """
+        Accepts a dict with the shape { var_name: value } and sets the SASS variables
+        """
+        for index, entry in enumerate(self.sass_variables):
+            var_name = entry[0]
+            if var_name in entries:
+                new_value = (var_name, [entries[var_name], entries[var_name]])
+                self.sass_variables[index] = new_value
+
+    def delete_css_override(self):
+        css_file = self.values.get('css_overrides_file')
+        if css_file:
+            try:
+                if settings.USE_S3_FOR_CUSTOMER_THEMES:
+                    kwargs = {
+                        'location': "customer_themes",
+                    }
+                    storage = get_storage_class()(**kwargs)
+                    storage.delete(self.get_value('css_overrides_file'))
+                else:
+                    os.remove(os.path.join(settings.COMPREHENSIVE_THEME_DIRS[0], css_file))
+            except OSError:
+                logger.warning("Can't delete CSS file {}".format(css_file))
+
+    def _formatted_sass_variables(self):
+        return " ".join(["{}: {};".format(var, val[0]) for var, val in self.sass_variables])
+
+    def _sass_var_override(self, path):
+        if 'branding-basics' in path:
+            return [(path, self._formatted_sass_variables())]
+        return None
+
+    def _get_initial_microsite_values(self):
+        domain_without_port_number = self.site.domain.split(':')[0]
+        return {
+            'platform_name': self.site.name,
+            'css_overrides_file': "{}.css".format(domain_without_port_number),
+            'ENABLE_COMBINED_LOGIN_REGISTRATION': True,
+        }
 
 
 class SiteConfigurationHistory(TimeStampedModel):

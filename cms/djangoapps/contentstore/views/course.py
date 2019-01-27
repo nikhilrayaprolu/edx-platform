@@ -20,9 +20,14 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_http_methods
+from edx_rest_framework_extensions.authentication import JwtAuthentication
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
-from opaque_keys.edx.locator import BlockUsageLocator
+from opaque_keys.edx.locator import BlockUsageLocator, CourseLocator
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from openedx.core.djangoapps.youngsphere.sites.tasks import clone_course
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from openedx.core.djangoapps.waffle_utils import WaffleSwitchNamespace
 from openedx.features.course_experience.waffle import waffle as course_experience_waffle
@@ -104,7 +109,7 @@ __all__ = ['course_info_handler', 'course_handler', 'course_listing',
            'advanced_settings_handler',
            'course_notifications_handler',
            'textbooks_list_handler', 'textbooks_detail_handler',
-           'group_configurations_list_handler', 'group_configurations_detail_handler']
+           'group_configurations_list_handler', 'group_configurations_detail_handler', 'create_course_api']
 
 WAFFLE_NAMESPACE = 'studio_home'
 
@@ -766,6 +771,55 @@ def course_outline_initial_state(locator_to_show, course_structure):
     }
 
 
+@api_view(['POST'])
+@authentication_classes((JwtAuthentication,))
+@permission_classes((IsAuthenticated,))
+def create_course_api(request):
+    print(request)
+    org = request.data.get('org')
+    course = request.data.get('number', request.data.get('course'))
+    display_name = request.data.get('display_name')
+    # force the start date for reruns and allow us to override start via the client
+    start = request.data.get('start', CourseFields.start.default)
+    run = request.data.get('run')
+
+    # allow/disable unicode characters in course_id according to settings
+    if not settings.FEATURES.get('ALLOW_UNICODE_COURSE_ID'):
+        if _has_non_ascii_characters(org) or _has_non_ascii_characters(course) or _has_non_ascii_characters(run):
+            return JsonResponse(
+                {'error': _('Special characters not allowed in organization, course number, and course run.')},
+                status=400
+            )
+
+    fields = {'start': start}
+    if display_name is not None:
+        fields['display_name'] = display_name
+
+    # Set a unique wiki_slug for newly created courses. To maintain active wiki_slugs for
+    # existing xml courses this cannot be changed in CourseDescriptor.
+    # # TODO get rid of defining wiki slug in this org/course/run specific way and reconcile
+    # w/ xmodule.course_module.CourseDescriptor.__init__
+    wiki_slug = u"{0}.{1}.{2}".format(org, course, run)
+    definition_data = {'wiki_slug': wiki_slug}
+    fields.update(definition_data)
+    try:
+        if(request.data.get('source_course')):
+            source_course_locator = request.data.get('source_course')
+            destination_course_locator = 'course-v1:'+CourseLocator(org, course, run)._to_string()
+            output = clone_course(source_course_locator, destination_course_locator, request.user.id, fields)
+            return JsonResponse({
+                'info': output,
+            })
+        else:
+            new_course = create_new_course(request.user, org, course, run, fields)
+            return JsonResponse({
+                'url': reverse_course_url('course_handler', new_course.id),
+                'course_key': unicode(new_course.id),
+            })
+    except ValidationError as ex:
+        return JsonResponse({'error': text_type(ex)}, status=400)
+
+
 @expect_json
 def _create_or_rerun_course(request):
     """
@@ -849,6 +903,7 @@ def create_new_course(user, org, number, run, fields):
         DuplicateCourseError: Course run already exists.
     """
     org_data = get_organization_by_short_name(org)
+    print(org_data)
     if not org_data and organizations_enabled():
         raise ValidationError(_('You must link this course to an organization in order to continue. Organization '
                                 'you selected does not exist in the system, you will need to add it to the system'))

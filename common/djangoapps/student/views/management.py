@@ -106,6 +106,7 @@ from util.bad_request_rate_limiter import BadRequestRateLimiter
 from util.db import outer_atomic
 from util.json_request import JsonResponse
 from util.password_policy_validators import SecurityPolicyError, validate_password
+from organizations.models import Organization, UserOrganizationMapping
 
 log = logging.getLogger("edx.student")
 
@@ -559,7 +560,7 @@ def user_signup_handler(sender, **kwargs):  # pylint: disable=unused-argument
 
 
 @transaction.non_atomic_requests
-def create_account_with_params(request, params):
+def create_account_with_params(request, params, send_activation_email_flag=True):
     """
     Given a request and a dict of parameters (which may or may not have come
     from the request), create an account for the requesting user, including
@@ -733,7 +734,7 @@ def create_account_with_params(request, params):
 
     # Check if system is configured to skip activation email for the current user.
     skip_email = skip_activation_email(
-        user, do_external_auth, running_pipeline, third_party_provider,
+        user, do_external_auth, running_pipeline, third_party_provider, send_activation_email_flag
     )
 
     if skip_email:
@@ -803,6 +804,27 @@ def create_account_with_params(request, params):
 
     create_comments_service_user(user)
 
+    #YoungSphere Specific:
+    if params.get('organization'):
+        organization_name = params.get('organization')
+        organization = None
+        # organization name is passed during signup when invited through AMC,
+        # otherwise it's a regular signup on a microsite
+        if organization_name:
+            try:
+                organization = Organization.objects.get(name=organization_name)
+            except:
+                pass
+        elif hasattr(request, 'site'):
+            organization = request.site.organizations.first()
+
+        is_amc_admin = "registered_from_amc" in params
+
+        if organization:
+            UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_amc_admin=is_amc_admin)
+
+
+
     try:
         record_registration_attributions(request, new_user)
     # Don't prevent a user from registering due to attribution errors.
@@ -817,7 +839,7 @@ def create_account_with_params(request, params):
     return new_user
 
 
-def skip_activation_email(user, do_external_auth, running_pipeline, third_party_provider):
+def skip_activation_email(user, do_external_auth, running_pipeline, third_party_provider, send_activation_email_flag=True):
     """
     Return `True` if activation email should be skipped.
 
@@ -872,7 +894,7 @@ def skip_activation_email(user, do_external_auth, running_pipeline, third_party_
         settings.FEATURES.get('SKIP_EMAIL_VALIDATION', None) or
         settings.FEATURES.get('AUTOMATIC_AUTH_FOR_TESTING') or
         (settings.FEATURES.get('BYPASS_ACTIVATION_EMAIL_FOR_EXTAUTH') and do_external_auth) or
-        (third_party_provider and third_party_provider.skip_email_verification and valid_email)
+        (third_party_provider and third_party_provider.skip_email_verification and valid_email) or not send_activation_email_flag
     )
 
 

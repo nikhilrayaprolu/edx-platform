@@ -92,6 +92,8 @@ urlpatterns = [
         ),
     url(r'^course/{}?$'.format(settings.COURSE_KEY_PATTERN), contentstore.views.course_handler, name='course_handler'),
 
+    url(r'^course_api/$', contentstore.views.create_course_api, name='create_course_api'),
+
     url(r'^checklists/{}?$'.format(settings.COURSE_KEY_PATTERN),
         contentstore.views.checklists_handler,
         name='checklists_handler'),

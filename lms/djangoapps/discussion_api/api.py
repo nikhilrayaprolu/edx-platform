@@ -837,6 +837,7 @@ def create_thread(request, thread_data):
         raise ValidationError(dict(serializer.errors.items() + actions_form.errors.items()))
     serializer.save()
     cc_thread = serializer.instance
+
     thread_created.send(sender=None, user=user, post=cc_thread)
     api_thread = serializer.data
     _do_extra_actions(api_thread, cc_thread, thread_data.keys(), actions_form, context, request)

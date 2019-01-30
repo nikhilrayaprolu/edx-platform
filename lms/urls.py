@@ -1070,6 +1070,15 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
             name='submit_financial_assistance_request'
         )
     ]
+urlpatterns += [
+    url(r'^youngsphere/api/',
+        include('openedx.core.djangoapps.youngsphere.api.urls',
+        namespace='youngsphere-api')),
+]
+urlpatterns += [
+    # youngsphere management console endpoint for student enrollment
+    url(r'^youngspheresite/api/', include('openedx.core.djangoapps.youngsphere.sites.urls', namespace='youngspheresite-api')),
+]
 
 # Branch.io Text Me The App
 if settings.BRANCH_IO_KEY:

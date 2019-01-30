@@ -184,9 +184,7 @@ class OuterAtomic(transaction.Atomic):
         super(OuterAtomic, self).__init__(using, savepoint)
 
     def __enter__(self):
-
         connection = transaction.get_connection(self.using)
-
         cache = get_cache(OUTER_ATOMIC_CACHE_NAME)
 
         # By default it is enabled.

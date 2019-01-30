@@ -366,6 +366,7 @@ FEATURES = {
     # Enable footer banner for cookie consent.
     # See https://cookieconsent.insites.com/ for more.
     'ENABLE_COOKIE_CONSENT': False,
+    'ENABLE_SOCIAL_ENGAGEMENT': True,
 
     # Whether or not the dynamic EnrollmentTrackUserPartition should be registered.
     'ENABLE_ENROLLMENT_TRACK_USER_PARTITION': True,
@@ -718,6 +719,11 @@ HEARTBEAT_EXTENDED_CHECKS = (
 
 HEARTBEAT_CELERY_TIMEOUT = 5
 
+# Verticals having children with any of these categories would be excluded from progress calculations
+PROGRESS_DETACHED_VERTICAL_CATEGORIES = ['discussion-course', 'group-project', 'gp-v2-project', 'eoc-journal']
+# Modules having these categories would be excluded from progress calculations
+PROGRESS_DETACHED_CATEGORIES = PROGRESS_DETACHED_VERTICAL_CATEGORIES + ['discussion-forum']
+
 ############################## EVENT TRACKING #################################
 LMS_SEGMENT_KEY = None
 
@@ -734,7 +740,7 @@ TRACKING_BACKENDS = {
         }
     }
 }
-
+ENABLE_FIREBASE_NOTIFICATIONS = True
 # We're already logging events, and we don't want to capture user
 # names/passwords.  Heartbeat events are likely not interesting.
 TRACKING_IGNORE_URL_PATTERNS = [r'^/event', r'^/login', r'^/heartbeat', r'^/segmentio/event', r'^/performance']
@@ -1993,6 +1999,12 @@ BULK_EMAIL_LOG_SENT_EMAILS = False
 # parallel, and what the SES rate is.
 BULK_EMAIL_RETRY_DELAY_BETWEEN_SENDS = 0.02
 
+####################### Persistent Social Engagement ##############################
+
+# Queue to use for updating persistent social engagements
+RECALCULATE_SOCIAL_ENGAGEMENT_ROUTING_KEY = LOW_PRIORITY_QUEUE
+
+
 ############################# Email Opt In ####################################
 
 # Minimum age for organization-wide email opt in
@@ -2039,6 +2051,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'djcelery',
+    'fcm_django',
 
     # Common Initialization
     'openedx.core.djangoapps.common_initialization.apps.CommonInitializationConfig',
@@ -2377,6 +2390,19 @@ ACTIVATION_EMAIL_SUPPORT_LINK = ''
 # Days before the expired date that we warn the user
 ENTITLEMENT_EXPIRED_ALERT_PERIOD = 90
 
+
+FCM_DJANGO_SETTINGS = {
+        "FCM_SERVER_KEY": "AAAAjVLQvhc:APA91bG6xQ2IRpmUJU7Etgvv93z-783KtU4J_BbJ7VpYw3QHdJirbJSt4QGMxBUmVPuXpYqKB2DmAAA2ibri2L0UJXiuTsn-qGNci-oBNUQd3Xt_Vg6T9yOVvmAizF3vcLqXh0deapmc",
+         # true if you want to have only one active device per registered user at a time
+         # default: False
+        "ONE_DEVICE_PER_USER": False,
+         # devices to which notifications cannot be sent,
+         # are deleted upon receiving error response from FCM
+         # default: False
+        "DELETE_INACTIVE_DEVICES": True,
+}
+
+
 ############################# SOCIAL MEDIA SHARING #############################
 # Social Media Sharing on Student Dashboard
 SOCIAL_SHARING_SETTINGS = {
@@ -2539,12 +2565,12 @@ XDOMAIN_PROXY_CACHE_TIMEOUT = 60 * 15
 
 REGISTRATION_EXTRA_FIELDS = {
     'confirm_email': 'hidden',
-    'level_of_education': 'optional',
-    'gender': 'optional',
-    'year_of_birth': 'optional',
-    'mailing_address': 'optional',
-    'goals': 'optional',
-    'honor_code': 'required',
+    'level_of_education': 'hidden',
+    'gender': 'hidden',
+    'year_of_birth': 'hidden',
+    'mailing_address': 'hidden',
+    'goals': 'hidden',
+    'honor_code': 'hidden',
     'terms_of_service': 'hidden',
     'city': 'hidden',
     'country': 'hidden',

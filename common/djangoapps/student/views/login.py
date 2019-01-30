@@ -29,6 +29,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import TemplateView
 from opaque_keys.edx.locator import CourseLocator
+from organizations.models import Organization, UserOrganizationMapping
 from provider.oauth2.models import Client
 from ratelimitbackend.exceptions import RateLimitException
 from requests import HTTPError
@@ -671,6 +672,12 @@ def auto_auth(request):
     age_limit = settings.PARENTAL_CONSENT_AGE_LIMIT
     profile.year_of_birth = (year - age_limit) - 1
     profile.save()
+
+    if request.GET and request.GET.get('organization_name'):
+        organization = Organization.objects.filter(name=request.GET.get('organization_name'))[0]
+        UserOrganizationMapping.objects.create(
+            user=user,
+            organization=organization)
 
     create_or_set_user_attribute_created_on_site(user, request.site)
 

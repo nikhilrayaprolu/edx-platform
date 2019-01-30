@@ -47,7 +47,17 @@ from django.utils.translation import ugettext as _
     % endif
   </%block>
 </ol>
-
+ % if settings.FEATURES.get('ENABLE_FIREBASE_NOTIFICATIONS', False):
+        <li class="primary">
+          <a id="xns-user-notifications-dropdown" href="#" class="xns-user-notifications xns-icon" aria-haspopup="true" aria-expanded="false">
+            <span class="sr">${_("Notifications Pane")}</span>
+              <i class="icon fa fa-bell" aria-hidden="true"></i>
+              <div class='xns-counter'>&nbsp;</div>
+              <i class="fa fa-sort-desc" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-menu xns-pane" aria-label="Notifications DropDown" aria-labelledby="user-notifications-dropdown" role="menu"></div>
+        </li>
+      % endif
 <%include file="../user_dropdown.html"/>
 
 <a href="${get_online_help_info(online_help_token)['doc_url']}"

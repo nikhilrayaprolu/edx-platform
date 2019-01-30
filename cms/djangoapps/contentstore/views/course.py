@@ -775,7 +775,7 @@ def course_outline_initial_state(locator_to_show, course_structure):
 @authentication_classes((JwtAuthentication,))
 @permission_classes((IsAuthenticated,))
 def create_course_api(request):
-    print(request)
+
     org = request.data.get('org')
     course = request.data.get('number', request.data.get('course'))
     display_name = request.data.get('display_name')
@@ -903,7 +903,7 @@ def create_new_course(user, org, number, run, fields):
         DuplicateCourseError: Course run already exists.
     """
     org_data = get_organization_by_short_name(org)
-    print(org_data)
+
     if not org_data and organizations_enabled():
         raise ValidationError(_('You must link this course to an organization in order to continue. Organization '
                                 'you selected does not exist in the system, you will need to add it to the system'))

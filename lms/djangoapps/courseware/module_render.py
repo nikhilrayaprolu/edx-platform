@@ -52,6 +52,7 @@ from openedx.core.djangoapps.crawlers.models import CrawlersConfig
 from openedx.core.djangoapps.credit.services import CreditService
 from openedx.core.djangoapps.monitoring_utils import set_custom_metrics_for_course_key, set_monitoring_transaction_name
 from openedx.core.djangoapps.util.user_utils import SystemUser
+from openedx.core.djangoapps.youngsphere.progress.models import CourseModuleCompletion
 from openedx.core.lib.gating.services import GatingService
 from openedx.core.lib.license import wrap_with_license
 from openedx.core.lib.url_utils import quote_slashes, unquote_slashes
@@ -516,6 +517,7 @@ def get_module_system_for_user(
         """
         Submit a completion object for the block.
         """
+
         if not completion_waffle.waffle().is_enabled(completion_waffle.ENABLE_COMPLETION_TRACKING):
             raise Http404
         else:
@@ -524,6 +526,12 @@ def get_module_system_for_user(
                 course_key=course_id,
                 block_key=block.scope_ids.usage_id,
                 completion=event['completion'],
+            )
+
+            CourseModuleCompletion.objects.get_or_create(
+                user_id=user.id,
+                course_id=course_id,
+                content_id=unicode(block.scope_ids.usage_id),
             )
 
     def handle_grade_event(block, event):
@@ -549,6 +557,7 @@ def get_module_system_for_user(
         edx-solutions.  New XBlocks should not emit these events, but instead
         emit completion events directly.
         """
+
         if not completion_waffle.waffle().is_enabled(completion_waffle.ENABLE_COMPLETION_TRACKING):
             raise Http404
         else:
@@ -556,7 +565,11 @@ def get_module_system_for_user(
             if requested_user_id != user.id:
                 log.warning("{} tried to submit a completion on behalf of {}".format(user, requested_user_id))
                 return
-
+            CourseModuleCompletion.objects.get_or_create(
+                user_id=user.id,
+                course_id=course_id,
+                content_id=unicode(descriptor.location)
+            )
             # If blocks explicitly declare support for the new completion API,
             # we expect them to emit 'completion' events,
             # and we ignore the deprecated 'progress' events

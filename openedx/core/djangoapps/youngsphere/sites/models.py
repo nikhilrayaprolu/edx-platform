@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.http.request import split_domain_port
 from django.contrib.sites.models import Site, SiteManager, SITE_CACHE
 from django.core.exceptions import ImproperlyConfigured
+from jsonfield import JSONField
 from organizations.models import Organization
 import django
 
@@ -132,9 +133,10 @@ class Course(models.Model):
     course_name = models.CharField(max_length=50)
     description = models.CharField(max_length=144, blank=True, null=True)
     year = models.IntegerField(default=2020)
-    organization = models.ForeignKey(Organization)
     courseno = models.CharField(max_length=50)
     courserun = models.CharField(max_length=30)
+    course_id = models.CharField(max_length=80)
+    course_status = models.CharField(max_length=3)
 
 class UserMiniProfile(models.Model):
     user = models.ForeignKey(User)
@@ -150,6 +152,44 @@ class UserMiniProfile(models.Model):
 class UserSectionMapping(models.Model):
     user = models.ForeignKey(User)
     section = models.ForeignKey(Section)
+
+class Notification(models.Model):
+    user_id = models.ForeignKey(User)
+    notification =JSONField(
+        null=True,
+        blank=True,
+    )
+
+class UnReadNotificationCount(models.Model):
+    user_id = models.ForeignKey(User, primary_key=True)
+    unread_count = models.IntegerField(default=0)
+
+    def increment(self):
+        self.unread_count += 1
+        self.save()
+
+    def zero(self):
+        self.unread_count = 0
+        self.save()
+
+class Device(models.Model):
+    device_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    active = models.BooleanField(
+        default=True,
+        help_text="Inactive devices will not be sent notifications"
+    )
+    user = models.ForeignKey(User, blank=True, null=True,
+                             on_delete=models.CASCADE)
+    date_created = models.DateTimeField(
+        auto_now_add=True, null=True
+    )
+
+    class Meta:
+        abstract = True
 
 
 

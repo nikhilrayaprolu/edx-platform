@@ -4,7 +4,7 @@ from six import text_type
 import settings
 import models
 import utils
-
+from .utils import CommentClientPaginatedResult, CommentClientRequestError, perform_request
 
 class User(models.Model):
 
@@ -134,6 +134,13 @@ class User(models.Model):
             num_pages=response.get('num_pages', 1),
             thread_count=response.get('thread_count', 0)
         )
+    def social_stats(self, end_date=None):
+        return get_user_social_stats(self.id, self.course_id, end_date=end_date)
+
+    @classmethod
+    def all_social_stats(cls, course_id, end_date=None, thread_type=None, thread_ids=None):
+        """ Get social stats for all users participating in a course """
+        return get_user_social_stats('*', course_id, end_date=end_date, thread_type=thread_type, thread_ids=thread_ids)
 
     def _retrieve(self, *args, **kwargs):
         url = self.url(action='get', params=self.attributes)
@@ -180,6 +187,43 @@ class User(models.Model):
             metric_tags=self._metric_tags
         )
 
+def get_user_social_stats(user_id, course_id, end_date=None, thread_type=None, thread_ids=None):
+    """ Queries cs_comments_service for social_stats """
+    if not course_id:
+        raise CommentClientRequestError("Must provide course_id when retrieving social stats for the user")
+
+    url = _url_for_user_social_stats(user_id)
+    params = {'course_id': course_id}
+    if end_date:
+        params.update({'end_date': end_date.isoformat()})
+    if thread_type:
+        params.update({'thread_type': thread_type})
+    if thread_ids:
+        params.update({'thread_ids': ",".join(thread_ids)})
+
+    response = perform_request(
+        'get',
+        url,
+        params
+    )
+    return response
+
+
+def get_course_social_stats(course_id, end_date=None):
+    """
+    Helper method to get the social stats from the comment service
+    """
+    url = _url_for_course_social_stats(end_date=end_date)
+    params = {'course_id': course_id}
+    if end_date:
+        params.update({'end_date': end_date.isoformat()})
+
+    response = perform_request(
+        'get',
+        url,
+        params
+    )
+    return response
 
 def _url_for_vote_comment(comment_id):
     return "{prefix}/comments/{comment_id}/votes".format(prefix=settings.PREFIX, comment_id=comment_id)
@@ -206,6 +250,19 @@ def _url_for_read(user_id):
     Returns cs_comments_service url endpoint to mark thread as read for given user_id
     """
     return "{prefix}/users/{user_id}/read".format(prefix=settings.PREFIX, user_id=user_id)
+
+def _url_for_user_stats(user_id, course_id):
+    return "{prefix}/users/{user_id}/stats?course_id={course_id}".format(
+        prefix=settings.PREFIX, user_id=user_id, course_id=course_id
+    )
+
+
+def _url_for_user_social_stats(user_id, end_date=None):
+    return "{prefix}/users/{user_id}/social_stats".format(prefix=settings.PREFIX, user_id=user_id)
+
+
+def _url_for_course_social_stats(end_date=None):
+    return "{prefix}/users/*/social_stats".format(prefix=settings.PREFIX)
 
 
 def _url_for_retire(user_id):

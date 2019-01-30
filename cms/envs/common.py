@@ -141,6 +141,7 @@ from lms.envs.common import (
     RETIRED_USER_SALTS,
     RETIREMENT_SERVICE_WORKER_USERNAME,
     RETIREMENT_STATES,
+    PROGRESS_DETACHED_VERTICAL_CATEGORIES, PROGRESS_DETACHED_CATEGORIES,
 
     # Methods to derive settings
     _make_mako_template_dirs,
@@ -201,6 +202,7 @@ FEATURES = {
     # If set to True, new Studio users won't be able to author courses unless
     # an Open edX admin has added them to the course creator group.
     'ENABLE_CREATOR_GROUP': True,
+    'ENABLE_SOCIAL_ENGAGEMENT': True,
 
     # whether to use password policy enforcement or not
     'ENFORCE_PASSWORD_POLICY': False,
@@ -925,6 +927,10 @@ CELERY_QUEUES = {
     DEFAULT_PRIORITY_QUEUE: {}
 }
 
+####################### Persistent Social Engagement ##############################
+
+# Queue to use for updating persistent social engagements
+RECALCULATE_SOCIAL_ENGAGEMENT_ROUTING_KEY = LOW_PRIORITY_QUEUE
 
 ############################## Video ##########################################
 
@@ -975,7 +981,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djcelery',
     'method_override',
-
+    'openedx.core.djangoapps.youngsphere.progress',
+    'openedx.core.djangoapps.youngsphere.social_engagement',
     # Common Initialization
     'openedx.core.djangoapps.common_initialization.apps.CommonInitializationConfig',
 

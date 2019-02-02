@@ -8,7 +8,7 @@ from organizations.models import Organization
 
 from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
 from openedx.core.djangoapps.youngsphere.sites.tasks import clone_course
-from .models import AlternativeDomain, School, Class, Section, Course, UserMiniProfile, UserSectionMapping
+from .models import School, Class, Section, Course, UserMiniProfile, UserSectionMapping
 from .utils import sass_to_dict, dict_to_sass, bootstrap_site
 
 
@@ -40,30 +40,21 @@ class SiteConfigurationListSerializer(SiteConfigurationSerializer):
         fields = ('id', 'name', 'domain')
 
 
-class AlternativeDomainSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AlternativeDomain
-        fields = ('id', 'domain', 'site')
 
 
 class SiteSerializer(serializers.ModelSerializer):
     configuration = SiteConfigurationSerializer(read_only=True)
-    alternativeDomain = AlternativeDomainSerializer(source='alternative_domain', read_only=True)
     customDomainStatus = serializers.SerializerMethodField('custom_domain_status', read_only=True)
 
     class Meta:
         model = Site
-        fields = ('id', 'name', 'domain', 'configuration', 'alternativeDomain', 'customDomainStatus')
+        fields = ('id', 'name', 'domain', 'configuration', 'customDomainStatus')
 
     def create(self, validated_data):
         site = super(SiteSerializer, self).create(validated_data)
         organization, site, user = bootstrap_site(site)
         return site
 
-    def custom_domain_status(self, obj):
-        if not hasattr(obj, 'alternative_domain'):
-            return 'inactive'
-        return 'active' if obj.alternative_domain.is_tahoe_domain() else 'inactive'
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -140,24 +131,6 @@ class RegistrationSerializer(serializers.Serializer):
         }
 
 
-class AlternativeDomainSerializer(serializers.ModelSerializer):
-    site = serializers.PrimaryKeyRelatedField(queryset=Site.objects.all())
-
-    class Meta:
-        model = AlternativeDomain
-        fields = ('id', 'site', 'domain')
-
-    def create(self, validated_data):
-        """
-        Allow only one alternative domain per Site model.
-        """
-        domain, created = AlternativeDomain.objects.get_or_create(
-            site=validated_data.get('site', None),
-            defaults={'domain': validated_data.get('domain', None)})
-        if not created:
-            domain.domain = validated_data.get('domain', None)
-            domain.save()
-        return domain
 
 class SchoolSerializer(serializers.ModelSerializer):
     organization = serializers.SlugRelatedField(queryset=Organization.objects.all(), slug_field='name')

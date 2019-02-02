@@ -30,10 +30,10 @@ from openedx.core.lib.api.authentication import (
     OAuth2AuthenticationAllowInactiveUser,
 )
 
-from .models import AlternativeDomain, School, Class, Section, Course, UserMiniProfile, UserSectionMapping
+from .models import School, Class, Section, Course, UserMiniProfile, UserSectionMapping
 from .permissions import AMCAdminPermission
 from .serializers import SiteConfigurationSerializer, SiteConfigurationListSerializer, SiteSerializer, \
-    RegistrationSerializer, AlternativeDomainSerializer, SchoolSerializer, ClassSerializer, SectionSerializer, \
+    RegistrationSerializer, SchoolSerializer, ClassSerializer, SectionSerializer, \
     CourseSerializer, UserMiniProfileSerializer, UserSectionMappingSerializer, OrganizationSerializer
 from .utils import delete_site
 from student.forms import PasswordResetFormNoActive
@@ -127,26 +127,6 @@ class DomainAvailabilityView(APIView):
             return Response(None, status=status.HTTP_404_NOT_FOUND)
 
 
-class DomainSwitchView(APIView):
-    def post(self, request, format=None):
-        site_id = request.data.get('site')
-        if not site_id:
-            return Response("Site ID needed", status=status.HTTP_400_BAD_REQUEST)
-        try:
-            site = Site.objects.get(id=site_id)
-            if not site.alternative_domain:
-                return Response("Site {} does not have a custom domain".format(site.domain),
-                                status=status.HTTP_404_NOT_FOUND)
-            site.alternative_domain.switch_with_active()
-            return Response(status=status.HTTP_200_OK)
-        except Site.DoesNotExist:
-            return Response("The site with ID {} does not exist".format(site_id),
-                            status=status.HTTP_404_NOT_FOUND)
-
-
-class CustomDomainView(CreateAPIView):
-    queryset = AlternativeDomain.objects.all()
-    serializer_class = AlternativeDomainSerializer
 
 class SchoolView(viewsets.ModelViewSet):
     queryset = School.objects.all()

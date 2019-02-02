@@ -835,7 +835,7 @@ def create_course_api(request):
                 'info': output,
             })
         else:
-            
+
             new_course = create_new_course(request.user, org, course, run, fields)
             data = {}
             data['organization'] = request.data.get('organization')

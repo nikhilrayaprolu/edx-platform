@@ -8,6 +8,7 @@ class SitesConfig(AppConfig):
     label = 'youngsphere_sites'
 
     def ready(self):
-        from .models import patched_clear_site_cache
+        #from .models import patched_clear_site_cache
 
-        pre_save.connect(patched_clear_site_cache, sender='site_configuration.SiteConfiguration')
+        #pre_save.connect(patched_clear_site_cache, sender='site_configuration.SiteConfiguration')
+        pass

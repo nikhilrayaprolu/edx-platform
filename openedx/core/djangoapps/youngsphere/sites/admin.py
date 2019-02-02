@@ -12,7 +12,7 @@ class AlternativeDomainAdmin(admin.ModelAdmin):
 
 
 admin.site.unregister(User)
-admin.site.register(AlternativeDomain, AlternativeDomainAdmin)
+#admin.site.register(AlternativeDomain, AlternativeDomainAdmin)
 admin.site.register(User)
 admin.site.register(UserMiniProfile)
 admin.site.register(School)

@@ -1,12 +1,12 @@
 """ Django Sites framework models overrides """
 from django.conf import settings
 from django.contrib.auth.models import User
-#from django.core.cache import caches
+from django.core.cache import caches
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.http.request import split_domain_port
-#from django.contrib.sites.models import Site, SiteManager, SITE_CACHE
+from django.contrib.sites.models import Site, SiteManager, SITE_CACHE
 from django.core.exceptions import ImproperlyConfigured
 from jsonfield import JSONField
 from organizations.models import Organization
@@ -79,30 +79,30 @@ import django
 #         pass
 #
 #
-# class AlternativeDomain(models.Model):
-#     site = models.OneToOneField(Site, related_name='alternative_domain')
-#     domain = models.CharField(max_length=500)
-#
-#     def __unicode__(self):
-#         return self.domain
-#
-#     def switch_with_active(self):
-#         """
-#         Switches the currently active site with the alternative domain (custom or default) and saves
-#         the currently active site as the alternative domain.
-#         """
-#         current_domain = self.site.domain
-#         self.site.domain = self.domain
-#         self.domain = current_domain
-#         self.site.save()
-#         self.save()
-#
-#     def is_tahoe_domain(self):
-#         """
-#         Checks if the domain is the default Tahoe domain and not a custom domain
-#         :return:
-#         """
-#         return settings.LMS_BASE in self.domain
+class AlternativeDomain(models.Model):
+    site = models.OneToOneField(Site, related_name='alternative_domain')
+    domain = models.CharField(max_length=500)
+
+    def __unicode__(self):
+        return self.domain
+
+    def switch_with_active(self):
+        """
+        Switches the currently active site with the alternative domain (custom or default) and saves
+        the currently active site as the alternative domain.
+        """
+        current_domain = self.site.domain
+        self.site.domain = self.domain
+        self.domain = current_domain
+        self.site.save()
+        self.save()
+
+    def is_tahoe_domain(self):
+        """
+        Checks if the domain is the default Tahoe domain and not a custom domain
+        :return:
+        """
+        return settings.LMS_BASE in self.domain
 
 class School(models.Model):
     organization = models.OneToOneField(Organization, related_name='school_profile')

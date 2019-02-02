@@ -107,7 +107,6 @@ class RegistrationViewSet(viewsets.ViewSet):
         """
         data = request.data
         password_provided = 'password' in data
-
         # set the honor_code and honor_code like checked,
         # so we can use the already defined methods for creating an user
         data['honor_code'] = "True"

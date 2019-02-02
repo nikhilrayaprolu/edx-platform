@@ -11,6 +11,113 @@ from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 
 from model_utils.models import TimeStampedModel
 from openedx.core.djangoapps.xmodule_django.models import CourseKeyField
+from openedx.core.djangoapps.youngsphere.sites.models import Class
+
+
+class StudentProgressClass(models.Model):
+    user = models.ForeignKey(User, db_index=True)
+    completions = models.IntegerField(default=0, db_index=True)
+    class_key = models.ForeignKey(Class, db_index=True)
+    created = AutoCreatedField(_('created'))
+    modified = AutoLastModifiedField(_('modified'), db_index=True)
+
+    class Meta(object):
+        """
+        Meta information for this Django model
+        """
+        unique_together = (('user', 'class_key'),)
+
+    @classmethod
+    def get_total_completions(cls, class_key):
+        """
+        Returns count of completions for a given course.
+        """
+        queryset = cls.objects.filter(class_key__exact=class_key, user__is_active=True)
+        completions = sum([student_progress.completions for student_progress in queryset])
+        return completions
+
+    @classmethod
+    def get_num_users_started(cls, course_key, exclude_users=None, org_ids=None, group_ids=None):
+        """
+        Returns count of users who completed at least one module.
+        """
+        queryset = cls.objects.filter(course_id__exact=course_key, user__is_active=True)
+
+        return queryset.distinct().count()
+
+    @classmethod
+    def get_user_position(cls, class_key, user_id, exclude_users=None):
+        """
+        Returns user's progress position and completions for a given course.
+        data = {"completions": 22, "position": 4}
+        """
+        data = {"completions": 0, "position": 0}
+        try:
+            queryset = cls.objects.get(class_key__exact=class_key, user__id=user_id)
+        except cls.DoesNotExist:
+            queryset = None
+
+        if queryset:
+            user_completions = queryset.completions
+            user_time_completed = queryset.modified
+
+            users_above = cls.objects.filter(Q(completions__gt=user_completions) | Q(completions=user_completions,
+                                                                                     modified__lt=user_time_completed),
+                                             class_key__exact=class_key, user__is_active=True) \
+                .exclude(user__id__in=exclude_users) \
+                .count()
+            data['position'] = users_above + 1
+            data['completions'] = user_completions
+        return data
+
+    @classmethod
+    def generate_leaderboard(cls, class_key, count=None, exclude_users=None, org_ids=None, group_ids=None):
+        """
+        Assembles a data set representing the Top N users, by progress, for a given course.
+
+        data = [
+                {
+                    'id': 123,
+                    'username': 'testuser1',
+                    'title': 'Engineer',
+                    'profile_image_uploaded_at': '2014-01-15 06:27:54',
+                    'completions': 0.92
+                },
+                {
+                    'id': 983,
+                    'username': 'testuser2',
+                    'title': 'Analyst',
+                    'profile_image_uploaded_at': '2014-01-15 06:27:54',
+                    'completions': 0.91
+                },
+                {
+                    'id': 246,
+                    'username': 'testuser3',
+                    'title': 'Product Owner',
+                    'profile_image_uploaded_at': '2014-01-15 06:27:54',
+                    'completions': 0.90
+                },
+                {
+                    'id': 357,
+                    'username': 'testuser4',
+                    'title': 'Director',
+                    'profile_image_uploaded_at': '2014-01-15 06:27:54',
+                    'completions': 0.89
+                },
+        ]
+
+        """
+        queryset = cls.objects \
+            .filter(class_key__exact=class_key, user__is_active=True) \
+            .exclude(user__id__in=exclude_users)
+        queryset = queryset.values(
+            'user__id',
+            'user__username',
+            'user__profile__title',
+            'user__profile__profile_image_uploaded_at',
+            'completions') \
+                       .order_by('-completions', 'modified')[:count]
+        return queryset
 
 
 class StudentProgress(models.Model):

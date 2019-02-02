@@ -18,7 +18,6 @@ def get_current_site_configuration():
     # Import is placed here to avoid circular import
     from openedx.core.djangoapps.theming.helpers import get_current_site
     site = get_current_site()
-
     # Import is placed here to avoid model import at project startup.
     from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
     try:
@@ -200,6 +199,7 @@ def get_current_site_orgs():
         list: A list of organization names.
     """
     course_org_filter = get_value('course_org_filter')
+
     # Make sure we have a list
     if course_org_filter and not isinstance(course_org_filter, list):
         course_org_filter = [course_org_filter]

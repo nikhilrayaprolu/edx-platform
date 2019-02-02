@@ -133,13 +133,11 @@ class Course(models.Model):
     course_name = models.CharField(max_length=50)
     description = models.CharField(max_length=144, blank=True, null=True)
     year = models.IntegerField(default=2020)
-    courseno = models.CharField(max_length=50)
-    courserun = models.CharField(max_length=30)
-    course_id = models.CharField(max_length=80)
-    course_status = models.CharField(max_length=3)
+    course_id = models.CharField(max_length=80, blank=True, null=True)
+    course_status = models.CharField(max_length=3, blank=True, null=True)
 
 class UserMiniProfile(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='mini_user_profile')
     first_name = models.CharField(max_length=40, blank=True, null=True)
     last_name = models.CharField(max_length=40, blank=True, null=True)
     gender = models.CharField(max_length=1, blank=True, null=True)
@@ -150,7 +148,7 @@ class UserMiniProfile(models.Model):
     school = models.ForeignKey(School,blank = True,null=True)
 
 class UserSectionMapping(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='section')
     section = models.ForeignKey(Section)
 
 class Notification(models.Model):

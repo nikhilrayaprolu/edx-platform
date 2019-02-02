@@ -529,6 +529,8 @@ MIDDLEWARE_CLASSES = [
 
     # This must be last so that it runs first in the process_response chain
     'openedx.core.djangoapps.site_configuration.middleware.SessionCookieDomainOverrideMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 # Clickjacking protection can be enabled by setting this to 'DENY'
@@ -983,6 +985,7 @@ INSTALLED_APPS = [
     'method_override',
     'openedx.core.djangoapps.youngsphere.progress',
     'openedx.core.djangoapps.youngsphere.social_engagement',
+    'openedx.core.djangoapps.youngsphere.sites',
     # Common Initialization
     'openedx.core.djangoapps.common_initialization.apps.CommonInitializationConfig',
 

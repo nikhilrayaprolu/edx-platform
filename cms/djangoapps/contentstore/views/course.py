@@ -27,6 +27,8 @@ from opaque_keys.edx.locator import BlockUsageLocator, CourseLocator
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
+
+from openedx.core.djangoapps.youngsphere.sites.serializers import CourseSerializer
 from openedx.core.djangoapps.youngsphere.sites.tasks import clone_course
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from openedx.core.djangoapps.waffle_utils import WaffleSwitchNamespace
@@ -777,7 +779,7 @@ def course_outline_initial_state(locator_to_show, course_structure):
 def create_course_api(request):
 
     org = request.data.get('org')
-    course = request.data.get('number', request.data.get('course'))
+    course = request.data.get('display_name', request.data.get('number'))
     display_name = request.data.get('display_name')
     # force the start date for reruns and allow us to override start via the client
     start = request.data.get('start', CourseFields.start.default)
@@ -804,18 +806,59 @@ def create_course_api(request):
     fields.update(definition_data)
     try:
         if(request.data.get('source_course')):
+
             source_course_locator = request.data.get('source_course')
             destination_course_locator = 'course-v1:'+CourseLocator(org, course, run)._to_string()
             output = clone_course(source_course_locator, destination_course_locator, request.user.id, fields)
+            data = {}
+            data['organization'] = request.data.get('organization')
+            data['course_class'] = request.data.get('course_class')
+            data['course_section'] = request.data.get('course_section')
+            data['course_name'] = request.data.get('display_name')
+            data['year'] = request.data.get('year')
+            data['description'] = request.data.get('description')
+            data['course_id'] = destination_course_locator
+            data['course_status'] = request.data.get('course_status')
+
+            young_course = CourseSerializer(data=data)
+            if young_course.is_valid():
+                young_course.save()
+                return JsonResponse({
+                    'data': young_course.data,
+                })
+            else:
+                return JsonResponse({
+                    'errors': young_course.errors,
+                })
+
             return JsonResponse({
                 'info': output,
             })
         else:
+            
             new_course = create_new_course(request.user, org, course, run, fields)
-            return JsonResponse({
-                'url': reverse_course_url('course_handler', new_course.id),
-                'course_key': unicode(new_course.id),
-            })
+            data = {}
+            data['organization'] = request.data.get('organization')
+            data['course_class'] = request.data.get('course_class')
+            data['course_section'] = request.data.get('course_section')
+            data['course_name'] = request.data.get('display_name')
+            data['year'] = request.data.get('year')
+            data['description'] = request.data.get('description')
+            data['course_id'] = str(new_course.id)
+
+            data['course_status'] = request.data.get('course_status')
+
+            young_course = CourseSerializer(data=data)
+            if young_course.is_valid():
+                young_course.save()
+                return JsonResponse({
+                    'data': young_course.data,
+                })
+
+            else:
+                return JsonResponse({
+                    'errors': young_course.errors,
+                })
     except ValidationError as ex:
         return JsonResponse({'error': text_type(ex)}, status=400)
 

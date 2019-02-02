@@ -17,6 +17,7 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from edx_oauth2_provider.constants import SCOPE_VALUE_DICT
+from edx_rest_framework_extensions.authentication import JwtAuthentication
 from oauth2_provider import models as dot_models
 from oauth2_provider.settings import oauth2_settings
 from oauth2_provider.views.base import TokenView as DOTAccessTokenView
@@ -24,6 +25,7 @@ from oauthlib.oauth2.rfc6749.tokens import BearerToken
 from provider import constants
 from provider.oauth2.views import AccessTokenView as DOPAccessTokenView
 from rest_framework import permissions
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -150,7 +152,7 @@ class LoginWithAccessTokenView(APIView):
     """
     View for exchanging an access token for session cookies
     """
-    authentication_classes = (OAuth2AuthenticationAllowInactiveUser,)
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, JwtAuthentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated,)
 
     @staticmethod
@@ -189,11 +191,11 @@ class LoginWithAccessTokenView(APIView):
         if not hasattr(request.user, 'backend'):
             request.user.backend = self._get_path_of_arbitrary_backend_for_user(request.user)
 
-        if not self._is_grant_password(request.auth):
-            raise AuthenticationFailed({
-                u'error_code': u'non_supported_token',
-                u'developer_message': u'Only support DOT type access token with grant type password. '
-            })
+        # if not self._is_grant_password(request.auth):
+        #     raise AuthenticationFailed({
+        #         u'error_code': u'non_supported_token',
+        #         u'developer_message': u'Only support DOT type access token with grant type password. '
+        #     })
 
         login(request, request.user)  # login generates and stores the user's cookies in the session
         return HttpResponse(status=204)  # cookies stored in the session are returned with the response

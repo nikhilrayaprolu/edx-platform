@@ -23,6 +23,7 @@ from util.signals import course_deleted
 #     get_aggregate_exclusion_user_ids,
 # )
 #from edx_notifications.data import NotificationMessage
+from openedx.core.djangoapps.youngsphere.social_engagement.models import StudentSocialEngagementProgressClassScore
 from .utils import is_progress_detached_vertical
 
 from .models import StudentProgress, StudentProgressHistory, CourseModuleCompletion
@@ -81,9 +82,15 @@ def handle_cmc_post_save_signal(sender, instance, created, **kwargs):  # pylint:
     content_id = unicode(instance.content_id)
     if is_valid_progress_module(content_id):
         try:
+            scoreclass, _ = StudentSocialEngagementProgressClassScore.objects.get_or_create(
+                user=instance.user,
+                class_key=instance.user.section.section.section_class,
+            )
             progress = StudentProgress.objects.get(user=instance.user, course_id=instance.course_id)
             progress.completions = F('completions') + 1
+            scoreclass.score = F('score') + 1
             progress.save()
+            scoreclass.save()
             #invalid_user_data_cache('progress', instance.course_id, instance.user.id)
         except ObjectDoesNotExist:
             progress = StudentProgress(user=instance.user, course_id=instance.course_id, completions=1)

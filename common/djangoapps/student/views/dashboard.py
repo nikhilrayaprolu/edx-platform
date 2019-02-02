@@ -74,6 +74,7 @@ def get_org_black_and_whitelist_for_site():
     # of edx.org has a list of orgs associated with its configuration.
     org_whitelist = configuration_helpers.get_current_site_orgs()
 
+
     if not org_whitelist:
         # If there is no whitelist, the blacklist will include all orgs that
         # have been configured for any other sites. This applies to edx.org,
@@ -219,10 +220,12 @@ def get_course_enrollments(user, org_whitelist, org_blacklist):
 
         # Filter out anything that is not in the whitelist.
         if org_whitelist and course_overview.location.org not in org_whitelist:
+
             continue
 
         # Conversely, filter out any enrollments in the blacklist.
         elif org_blacklist and course_overview.location.org in org_blacklist:
+
             continue
 
         # Else, include the enrollment.

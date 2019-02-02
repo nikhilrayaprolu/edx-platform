@@ -10,6 +10,7 @@ from django.db import transaction
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from edx_rest_framework_extensions.authentication import JwtAuthentication
+from opaque_keys.edx.keys import CourseKey
 from rest_framework import generics, views, viewsets
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
@@ -18,6 +19,8 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from organizations.models import UserOrganizationMapping
+
+
 from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
 from rest_framework.views import APIView
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
@@ -36,6 +39,10 @@ from .utils import delete_site
 from student.forms import PasswordResetFormNoActive
 from student.views import create_account_with_params
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from student.roles import CourseInstructorRole, CourseStaffRole
+from student.models import CourseEnrollment
+from enrollment.serializers import CourseEnrollmentSerializer
+
 
 class SiteViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Site.objects.all()
@@ -160,22 +167,22 @@ class SchoolView(viewsets.ModelViewSet):
 #     authentication_classes = (OAuth2AuthenticationAllowInactiveUser,)
 #     permission_classes = (IsAuthenticated,)
 
-class CourseView(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
-    serializer_class = CourseSerializer
-    authentication_classes = (OAuth2AuthenticationAllowInactiveUser,)
-    permission_classes = (IsAuthenticated,)
+# class CourseView(viewsets.ModelViewSet):
+#     queryset = Course.objects.all()
+#     serializer_class = CourseSerializer
+#     authentication_classes = (OAuth2AuthenticationAllowInactiveUser, JwtAuthentication,)
+#     permission_classes = (IsAuthenticated,)
 
 class UserMiniProfileView(viewsets.ModelViewSet):
     queryset = UserMiniProfile.objects.all()
     serializer_class = UserMiniProfileSerializer
-    authentication_classes = (OAuth2AuthenticationAllowInactiveUser,)
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser, JwtAuthentication,)
     permission_classes = (IsAuthenticated,)
 
 class UserSectionMappingView(viewsets.ModelViewSet):
     queryset = UserSectionMapping.objects.all()
     serializer_class = UserSectionMappingSerializer
-    authentication_classes = (OAuth2AuthenticationAllowInactiveUser,)
+    authentication_classes = (OAuth2AuthenticationAllowInactiveUser,JwtAuthentication,)
     permission_classes = (IsAuthenticated,)
 
 class SchoolProfile(APIView):
@@ -408,6 +415,20 @@ class SectionView(APIView):
         return Response(sections_serializer.data)
 
 
+class CourseView(APIView):
+    def get_course_organization(self, organization):
+        try:
+            courses = Course.objects.filter(organization=organization)
+            print(courses)
+            return courses
+        except Course.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        courses = self.get_course_organization(pk)
+        courses_serializer = CourseSerializer(courses, many=True)
+        return Response(courses_serializer.data)
+
 class NewSectionView(APIView):
     def increment_section(self, classid):
         classobject = Class.objects.get(id=classid)
@@ -522,7 +543,6 @@ class StudentNewProfile(APIView):
             # meaning we don't have to send a password reset email
             user.is_active = password_provided
             user.save()
-            user_id = user.id
             if not password_provided:
                 success = send_password_reset_email(request)
                 if not success:
@@ -552,3 +572,117 @@ class StudentNewProfile(APIView):
         if user_section_mapping_serializer.is_valid():
             user_section_mapping_serializer.save()
         return Response({'user':user_mini_profile.data, 'user_section':user_section_mapping_serializer.data}, status=200)
+
+class NewTeacherEnrollView(APIView):
+
+    def post(self, request):
+        data = request.data
+        user_id = data['user_id']
+        destination_course_key_string = data['destination_course_key']
+        destination_course_key = CourseKey.from_string(destination_course_key_string)
+        user = User.objects.get(id=user_id)
+        enrollment = CourseEnrollment.enroll(user, destination_course_key)
+        # add course intructor and staff roles to the new user
+        CourseInstructorRole(destination_course_key).add_users(user)
+        CourseStaffRole(destination_course_key).add_users(user)
+        enrollment_serializer = CourseEnrollmentSerializer(enrollment)
+        return Response(enrollment_serializer.data,
+                        status=200)
+
+
+class TeacherEnrollView(APIView):
+
+    def get(self, request, course_key):
+        destination_course_key = CourseKey.from_string(course_key)
+        data = CourseInstructorRole(destination_course_key).users_with_role()
+        print(data)
+        user_mini_profile = UserMiniProfile.objects.filter(user_id__in=data)
+        print(user_mini_profile)
+        teachers_data = UserMiniProfileSerializer(user_mini_profile, many=True)
+        return Response(teachers_data.data,
+                        status=200)
+
+
+
+class NewStudentEnrollView(APIView):
+
+    def post(self, request):
+        data = request.data
+        user_id = data['user_id']
+        destination_course_key_string = data['destination_course_key']
+        destination_course_key = CourseKey.from_string(destination_course_key_string)
+        user = User.objects.get(id=user_id)
+        enrollment = CourseEnrollment.enroll(user, destination_course_key)
+        enrollment_serializer = CourseEnrollmentSerializer(enrollment)
+        return Response(enrollment_serializer.data,
+                        status=200)
+
+class BulkNewStudentEnrollView(APIView):
+
+    def post(self, request):
+        data = request.data
+        user_ids = data['user_ids']
+        for user_id in user_ids:
+            destination_course_key_string = data['destination_course_key']
+            destination_course_key = CourseKey.from_string(destination_course_key_string)
+            user = User.objects.get(id=user_id)
+            enrollment = CourseEnrollment.enroll(user, destination_course_key)
+            enrollment_serializer = CourseEnrollmentSerializer(enrollment)
+        return Response({'success':True},
+                        status=200)
+
+class SectionBulkNewStudentEnrollView(APIView):
+
+    def post(self, request):
+        data = request.data
+        destination_course_key_string = data['destination_course_key']
+        destination_course_key = CourseKey.from_string(destination_course_key_string)
+        section = data['section']
+        user_ids = UserSectionMapping.objects.filter(section=section).values_list('user',flat=True)
+        for user_id in user_ids:
+            user = User.objects.get(id=user_id)
+            enrollment = CourseEnrollment.enroll(user, destination_course_key)
+            print(enrollment)
+        return Response({'success':True},
+                        status=200)
+
+class StudentEnrollView(APIView):
+
+    def get(self, request, course_key):
+        destination_course_key = CourseKey.from_string(course_key)
+        users = CourseEnrollment.objects.filter(course=destination_course_key).values_list('user',flat=True)
+        print(users)
+        user_mini_profile =  UserMiniProfile.objects.filter(user_id__in=users)
+        print(user_mini_profile)
+        students_data = UserMiniProfileSerializer(user_mini_profile, many=True)
+        return Response(students_data.data,
+                        status=200)
+
+
+class BulkNewStudentsView(APIView):
+    def post(self, request):
+        users = request.data['users']
+        for user in users:
+            user_model = User.objects.create_user(user['username'], user['email'], user['password'])
+            profile = UserProfile(user=user_model)
+            profile.name = user['name']
+            profile.save()
+            data = user
+            data['is_staff'] = "False"
+            data['user'] = user_model.id
+            data['birthday'] = data['birthday'][:10]
+            print(data)
+            user.is_active = True
+            user.save()
+            user_mini_profile = UserMiniProfileSerializer(data=data)
+            if user_mini_profile.is_valid():
+                user_mini_profile.save()
+            else:
+                print(user_mini_profile.errors)
+            user_section_mapping_serializer = UserSectionMappingSerializer(data=data)
+            if user_section_mapping_serializer.is_valid():
+                user_section_mapping_serializer.save()
+        return Response({'success': True},
+                            status=200)
+
+

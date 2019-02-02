@@ -28,3 +28,18 @@ JWT_AUTH.update({
     'JWT_ISSUER': OAUTH_OIDC_ISSUER,
     'JWT_AUDIENCE': 'lms-key',
 })
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_HEADERS = (
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'x-csrftoken',
+    'cache-control',
+)
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:4200',
+)

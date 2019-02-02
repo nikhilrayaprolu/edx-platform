@@ -13,8 +13,10 @@ from celery.task import task
 from xmodule.modulestore.django import modulestore
 from opaque_keys.edx.keys import CourseKey
 
+from openedx.core.djangoapps.youngsphere.sites.models import UserSectionMapping
 from .engagement import update_course_engagement, get_social_metric_points
-from .models import StudentSocialEngagementScore
+from .models import StudentSocialEngagementScore,  \
+    StudentSocialEngagementProgressClassScore
 
 log = logging.getLogger('edx.celery.task')
 
@@ -66,14 +68,22 @@ def task_update_user_engagement(user_id, course_id, param, increment=True, items
             user=user,
             course_id=course_key,
         )
+        scoreclass, _ = StudentSocialEngagementProgressClassScore.objects.get_or_create(
+            user=user,
+            class_key=user.section.section.section_class,
+        )
         if isinstance(param, dict):
             score_difference = 0
             for key, value in param.items():
                 score_difference += social_metric_points.get(key, 0) * factor * value
                 setattr(score, key, F(key) + value * factor)
             score.score = F('score') + score_difference
+            scoreclass.score = F('score') + score_difference
+
         else:
             score.score = F('score') + social_metric_points.get(param, 0) * factor
+            scoreclass.score = F('score') + social_metric_points.get(param, 0) * factor
             setattr(score, param, F(param) + factor)
 
         score.save()
+        scoreclass.save()

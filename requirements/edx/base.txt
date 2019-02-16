@@ -249,3 +249,4 @@ dj-database-url==0.4.2
 git+https://github.com/appsembler/edx-organizations.git@0.4.10-appsembler3
 fcm-django
 git+https://github.com/YoungSphere/Shareblock.git
+git+https://github.com/YoungSphere/Wagtail_Young.git

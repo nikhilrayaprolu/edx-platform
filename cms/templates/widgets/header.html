@@ -6,6 +6,7 @@
   from django.utils.translation import ugettext as _
   from openedx.core.djangoapps.lang_pref.api import header_language_selector_is_enabled, released_languages
   from cms.djangoapps.contentstore.config.waffle_utils import should_show_checklists_page
+  lms_base = settings.LMS_BASE
 %>
 <div class="wrapper-header wrapper" id="view-top">
   <header class="primary" role="banner">
@@ -136,6 +137,10 @@
               </div>
             </div>
           </li>
+          <li class="nav-item nav-account-help">
+            <h3 class="title"><span class="label"><a href="${lms_base}/libraries">${_("Libraries")}</a></span></h3>
+          </li>
+
         </ol>
       </nav>
       % elif context_library:

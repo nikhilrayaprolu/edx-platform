@@ -68,22 +68,34 @@ def task_update_user_engagement(user_id, course_id, param, increment=True, items
             user=user,
             course_id=course_key,
         )
-        scoreclass, _ = StudentSocialEngagementProgressClassScore.objects.get_or_create(
-            user=user,
-            class_key=user.section.section.section_class,
-        )
+        class_id = None
+        user_section = None
+        user_section_relation = user.section.first()
+        if user_section_relation:
+            user_section = user_section_relation.section
+        if user_section and user_section.section_class:
+            class_id = user_section.section_class
+        scoreclass = None
+        if class_id:
+            scoreclass, _ = StudentSocialEngagementProgressClassScore.objects.get_or_create(
+                user=user,
+                class_key=class_id,
+            )
         if isinstance(param, dict):
             score_difference = 0
             for key, value in param.items():
                 score_difference += social_metric_points.get(key, 0) * factor * value
                 setattr(score, key, F(key) + value * factor)
             score.score = F('score') + score_difference
-            scoreclass.score = F('score') + score_difference
+            if scoreclass:
+                scoreclass.score = F('score') + score_difference
 
         else:
             score.score = F('score') + social_metric_points.get(param, 0) * factor
-            scoreclass.score = F('score') + social_metric_points.get(param, 0) * factor
+            if scoreclass:
+                scoreclass.score = F('score') + social_metric_points.get(param, 0) * factor
             setattr(score, param, F(param) + factor)
 
         score.save()
-        scoreclass.save()
+        if scoreclass:
+            scoreclass.save()

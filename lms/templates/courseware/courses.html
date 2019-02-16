@@ -56,6 +56,16 @@
         % endif
 
         <div class="courses${'' if course_discovery_enabled else ' no-course-discovery'}" role="region" aria-label="${_('List of Courses')}">
+          % if "libraries" in request.get_full_path():
+          <p>Here are the libraries</p>
+          <ul class="courses-listing courses-list">
+            %for library in libraries:
+            <li class="courses-listing-item">
+              <%include file="../course.html" args="course=library" />
+            </li>
+            %endfor
+          </ul>
+          % else:
           <ul class="courses-listing">
             %for course in courses:
             <li class="courses-listing-item">
@@ -63,6 +73,7 @@
             </li>
             %endfor
           </ul>
+        % endif
         </div>
 
 

@@ -11,6 +11,7 @@ from django.db.models import F
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locator import BlockUsageLocator
 from util.signals import course_deleted
 
@@ -74,23 +75,33 @@ def is_valid_progress_module(content_id):
         return False
 
 
-@receiver(post_save, sender=CourseModuleCompletion, dispatch_uid='lms.progress.post_save_cms')
+@receiver(post_save, sender=CourseModuleCompletion)
 def handle_cmc_post_save_signal(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
     """
     Broadcast the progress change event
     """
     content_id = unicode(instance.content_id)
     if is_valid_progress_module(content_id):
-        try:
+        class_id = None
+        user_section = None
+        user_section_relation = instance.user.section.first()
+        if user_section_relation:
+            user_section = user_section_relation.section
+        if user_section and user_section.section_class:
+            class_id = user_section.section_class
+        if class_id:
             scoreclass, _ = StudentSocialEngagementProgressClassScore.objects.get_or_create(
                 user=instance.user,
-                class_key=instance.user.section.section.section_class,
+                class_key=class_id,
             )
-            progress = StudentProgress.objects.get(user=instance.user, course_id=instance.course_id)
-            progress.completions = F('completions') + 1
             scoreclass.score = F('score') + 1
-            progress.save()
             scoreclass.save()
+
+        try:
+            course_id = CourseKey.from_string(instance.course_id)
+            progress = StudentProgress.objects.get(user=instance.user, course_id=course_id)
+            progress.completions = F('completions') + 1
+            progress.save()
             #invalid_user_data_cache('progress', instance.course_id, instance.user.id)
         except ObjectDoesNotExist:
             progress = StudentProgress(user=instance.user, course_id=instance.course_id, completions=1)

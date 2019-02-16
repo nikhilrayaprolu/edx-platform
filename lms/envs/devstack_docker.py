@@ -93,11 +93,29 @@ INSTALLED_APPS += (
     'openedx.core.djangoapps.youngsphere.sites',
 'openedx.core.djangoapps.youngsphere.progress',
 'openedx.core.djangoapps.youngsphere.social_engagement',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+'wagtail.wagtailforms',
+'wagtail.wagtailredirects',
+'wagtail.wagtailembeds',
+'wagtail.wagtailsites',
+'wagtail.wagtailusers',
+'wagtail.wagtailsnippets',
+'wagtail.wagtaildocs',
+'wagtail.wagtailimages',
+'wagtail.wagtailsearch',
+'wagtail.wagtailadmin',
+'wagtail.wagtailcore',
 
+'modelcluster',
+'taggit',
+
+'puput',
+'wagtail.contrib.wagtailsitemaps',
+'wagtail.contrib.wagtailroutablepage',
 
 )
-
+WAGTAIL_SITE_NAME = 'Young Sphere Site'
+PUPUT_AS_PLUGIN = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_HEADERS = (
@@ -120,6 +138,9 @@ EDX_API_KEY = "test"
 
 MIDDLEWARE_CLASSES += (
     'organizations.middleware.OrganizationMiddleware',
+'wagtail.wagtailcore.middleware.SiteMiddleware',
+'wagtail.wagtailredirects.middleware.RedirectMiddleware',
+
 )
 
 COURSE_CATALOG_VISIBILITY_PERMISSION = 'see_in_catalog'

@@ -53,6 +53,10 @@ from student import views as student_views
 from student_account import views as student_account_views
 from track import views as track_views
 from util import views as util_views
+from wagtail.wagtailadmin import urls as wagtailadmin_urls
+from wagtail.wagtaildocs import urls as wagtaildocs_urls
+from wagtail.wagtailcore import urls as wagtail_urls
+
 
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     django_autodiscover()
@@ -140,6 +144,10 @@ urlpatterns = [
 
     url(r'^dashboard/', include('learner_dashboard.urls')),
     url(r'^api/experiments/', include('experiments.urls', namespace='api_experiments')),
+    url(r'^cms/', include(wagtailadmin_urls)),
+    url(r'^pages/', include('puput.urls')),
+    url(r'^pages/', include(wagtail_urls)),
+    url(r'^documents/', include(wagtaildocs_urls)),
 ]
 
 # TODO: This needs to move to a separate urls.py once the student_account and
@@ -300,6 +308,7 @@ urlpatterns += [
     url(r'^calculate$', util_views.calculate),
 
     url(r'^courses/?$', branding_views.courses, name='courses'),
+    url(r'^libraries/?$', branding_views.courses, name='courses'),
 
     #About the course
     url(

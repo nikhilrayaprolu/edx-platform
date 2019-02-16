@@ -558,7 +558,7 @@ class CourseOverview(TimeStampedModel):
         log.info('Finished generating course overviews.')
 
     @classmethod
-    def get_all_courses(cls, orgs=None, filter_=None):
+    def get_all_courses(cls, orgs=None, filter_=None, exclude_=None):
         """
         Returns all CourseOverview objects in the database.
 
@@ -571,7 +571,7 @@ class CourseOverview(TimeStampedModel):
         # make sure the "publish" signal was emitted when the course was
         # created. For tests using CourseFactory, use emit_signals=True.
         course_overviews = CourseOverview.objects.all()
-
+        print(course_overviews)
         if orgs:
             # In rare cases, courses belonging to the same org may be accidentally assigned
             # an org code with a different casing (e.g., Harvardx as opposed to HarvardX).
@@ -580,6 +580,8 @@ class CourseOverview(TimeStampedModel):
 
         if filter_:
             course_overviews = course_overviews.filter(**filter_)
+        if exclude_:
+            course_overviews = course_overviews.exclude(**exclude_)
 
         return course_overviews
 

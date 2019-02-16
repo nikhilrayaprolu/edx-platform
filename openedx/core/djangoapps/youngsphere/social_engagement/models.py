@@ -478,8 +478,7 @@ class StudentSocialEngagementProgressClassScore(TimeStampedModel):
             data['queryset'] = queryset.values(
                 'user__id',
                 'user__username',
-                'user__profile__title',
-                'user__profile__profile_image_uploaded_at',
+                'user__mini_user_profile__first_name',
                 'score',
                 'modified'
             ).order_by('-score', 'modified')[:kwargs.get('count')]

@@ -4,7 +4,9 @@ Course API
 
 from django.contrib.auth.models import AnonymousUser, User
 from rest_framework.exceptions import PermissionDenied
-
+from django.conf import settings
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+from lms.djangoapps.courseware.access import has_access
 from lms.djangoapps.courseware.courses import (
     get_course_overview_with_access,
     get_courses,
@@ -84,4 +86,14 @@ def list_courses(request, username, org=None, filter_=None):
         List of `CourseOverview` objects representing the collection of courses.
     """
     user = get_effective_user(request.user, username)
-    return get_courses(user, org=org, filter_=filter_)
+    from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+    courses = CourseOverview.get_all_courses(filter_=filter_)
+    permission_name = configuration_helpers.get_value(
+        'COURSE_CATALOG_VISIBILITY_PERMISSION',
+        settings.COURSE_CATALOG_VISIBILITY_PERMISSION
+    )
+    courses = [c for c in courses if has_access(user, permission_name, c)]
+    print(courses)
+    #courses = get_courses(user, org=org, filter_=filter_)
+    #print(courses)
+    return courses

@@ -955,6 +955,9 @@ STATICFILES_DIRS = [
     COMMON_ROOT / "static",
     PROJECT_ROOT / "static",
     NODE_MODULES_ROOT / "@edx",
+    COMMON_ROOT / "djangoapps" / "wagtail" / "wagtailadmin" / "static_src",
+    COMMON_ROOT / "djangoapps" / "wagtail" / "wagtailimages" / "static_src",
+    COMMON_ROOT / "djangoapps" / "wagtail" / "wagtailusers" / "static_src",
 ]
 
 FAVICON_PATH = 'images/favicon.ico'

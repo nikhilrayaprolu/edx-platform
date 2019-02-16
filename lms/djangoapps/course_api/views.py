@@ -233,6 +233,7 @@ class CourseListView(DeveloperErrorViewMixin, ListAPIView):
 
     pagination_class = NamespacedPageNumberPagination
     pagination_class.max_page_size = 100
+    pagination_class.page_size = 100
     serializer_class = CourseSerializer
     throttle_classes = CourseListUserThrottle,
 
@@ -255,8 +256,9 @@ class CourseListView(DeveloperErrorViewMixin, ListAPIView):
             org=form.cleaned_data['org'],
             filter_=form.cleaned_data['filter_'],
         )
-
+        print('db_courses', db_courses)
         if not settings.FEATURES['ENABLE_COURSEWARE_SEARCH'] or not form.cleaned_data['search_term']:
+            print('return db_courses')
             return db_courses
 
         search_courses = search.api.course_discovery_search(

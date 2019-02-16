@@ -71,7 +71,7 @@ from xmodule.tabs import CourseTabList
 from xmodule.x_module import DEPRECATION_VSCOMPAT_EVENT, PREVIEW_VIEWS, STUDENT_VIEW, STUDIO_VIEW
 
 __all__ = [
-    'orphan_handler', 'xblock_handler', 'xblock_view_handler', 'xblock_outline_handler', 'xblock_container_handler'
+    'orphan_handler', 'xblock_handler', 'xblock_view_handler', 'xblock_outline_handler', 'xblock_container_handler','_get_xblock', '_create_xblock_ancestor_info'
 ]
 
 log = logging.getLogger(__name__)
@@ -861,7 +861,7 @@ def _duplicate_item(parent_usage_key, duplicate_source_usage_key, user, display_
 
         dest_module = store.create_item(
             user.id,
-            dest_usage_key.course_key,
+            parent_usage_key.course_key,
             dest_usage_key.block_type,
             block_id=dest_usage_key.block_id,
             definition_data=source_item.get_explicitly_set_fields_by_scope(Scope.content),

@@ -659,7 +659,7 @@ def student_dashboard(request):
     # Find programs associated with course runs being displayed. This information
     # is passed in the template context to allow rendering of program-related
     # information on the dashboard.
-    print(request.site)
+
     meter = ProgramProgressMeter(request.site, user, enrollments=course_enrollments)
     ecommerce_service = EcommerceService()
     inverted_programs = meter.invert_programs()

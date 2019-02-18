@@ -139,7 +139,6 @@ EDX_API_KEY = "test"
 MIDDLEWARE_CLASSES += (
     'organizations.middleware.OrganizationMiddleware',
 'wagtail.wagtailcore.middleware.SiteMiddleware',
-'wagtail.wagtailredirects.middleware.RedirectMiddleware',
 
 )
 

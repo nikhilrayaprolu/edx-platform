@@ -2,11 +2,11 @@ from django.conf import settings
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 from .api import SiteConfigurationViewSet, SiteViewSet, FileUploadView, SiteCreateView, \
-    UsernameAvailabilityView, DomainAvailabilityView,  \
+    UsernameAvailabilityView, DomainAvailabilityView, \
     SchoolView, ClassView, SectionView, CourseView, UserMiniProfileView, UserSectionMappingView, SchoolProfile, \
     TeacherProfile, TeacherNewProfile, NewClassView, NewSectionView, StudentProfile, StudentNewProfile, \
     StudentEnrollView, NewStudentEnrollView, TeacherEnrollView, NewTeacherEnrollView, BulkNewStudentEnrollView, \
-    SectionBulkNewStudentEnrollView, BulkNewStudentsView
+    SectionBulkNewStudentEnrollView, BulkNewStudentsView, ProgressLeaderBoard
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -40,7 +40,6 @@ urlpatterns = [
     url(r'^bulk_enroll_student/', BulkNewStudentEnrollView.as_view()),
     url(r'^bulk_enroll_student/', BulkNewStudentsView.as_view()),
     url(r'^bulk_enroll_section/', SectionBulkNewStudentEnrollView.as_view()),
-
-
+    url(r'^progressleaderboard/', ProgressLeaderBoard.as_view()),
     url(r'^', include(router.urls)),
 ]

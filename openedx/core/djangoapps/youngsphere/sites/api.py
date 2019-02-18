@@ -25,6 +25,7 @@ from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
 from rest_framework.views import APIView
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.user_api.accounts.api import check_account_exists
+from openedx.core.djangoapps.youngsphere.social_engagement.models import StudentSocialEngagementProgressClassScore
 from openedx.core.lib.api.permissions import ApiKeyHeaderPermission
 from openedx.core.lib.api.authentication import (
     OAuth2AuthenticationAllowInactiveUser,
@@ -663,6 +664,38 @@ class BulkNewStudentsView(APIView):
             if user_section_mapping_serializer.is_valid():
                 user_section_mapping_serializer.save()
         return Response({'success': True},
+                            status=200)
+
+
+class ProgressLeaderBoard(APIView):
+    def get(self, request):
+        user = request.user
+        engagementscores = StudentSocialEngagementProgressClassScore()
+        class_id = None
+        user_section = None
+        user_section_relation = user.section.first()
+        user_engagement_score = 0
+        class_average_score = 0
+        user_position = None
+        leader_board = None
+        if user_section_relation:
+            user_section = user_section_relation.section
+        if user_section and user_section.section_class:
+            class_id = user_section.section_class
+        if class_id:
+            user_engagement_score = engagementscores.get_user_engagement_score(class_id, user.id)
+            if user_engagement_score == None:
+                user_engagement_score = 0
+            class_average_score = engagementscores.get_class_average_engagement_score(class_id)
+            if class_average_score == None:
+                class_average_score = 0
+            user_position = engagementscores.get_user_leaderboard_position(class_id, user_id=user.id)
+            if user_position == None:
+                user_position = 0
+            leaderboard = engagementscores.generate_leaderboard(class_id, count=10)
+            print(leaderboard)
+            return Response({'user_engagement_score': user_engagement_score, 'class_average_score': class_average_score,
+                             'user_position': user_position, 'leaderboard': leaderboard},
                             status=200)
 
 

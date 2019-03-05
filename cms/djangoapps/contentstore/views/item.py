@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locator import LibraryUsageLocator
@@ -108,6 +109,7 @@ def _filter_entrance_exam_grader(graders):
 
 @require_http_methods(("DELETE", "GET", "PUT", "POST", "PATCH"))
 @login_required
+@csrf_exempt
 @expect_json
 def xblock_handler(request, usage_key_string):
     """

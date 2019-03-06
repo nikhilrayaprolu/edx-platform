@@ -19,7 +19,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from organizations.models import UserOrganizationMapping
-
+from edxmako.shortcuts import render_to_response, render_to_string
 
 from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
 from rest_framework.views import APIView
@@ -698,4 +698,8 @@ class ProgressLeaderBoard(APIView):
                              'user_position': user_position, 'leaderboard': leaderboard},
                             status=200)
 
-
+from django.views import View
+class ProductsView(View):
+    template_name = 'products.html'
+    def get(self, request, *args, **kwargs):
+        return render_to_response(self.template_name)

@@ -6,7 +6,7 @@ from .api import SiteConfigurationViewSet, SiteViewSet, FileUploadView, SiteCrea
     SchoolView, ClassView, SectionView, CourseView, UserMiniProfileView, UserSectionMappingView, SchoolProfile, \
     TeacherProfile, TeacherNewProfile, NewClassView, NewSectionView, StudentProfile, StudentNewProfile, \
     StudentEnrollView, NewStudentEnrollView, TeacherEnrollView, NewTeacherEnrollView, BulkNewStudentEnrollView, \
-    SectionBulkNewStudentEnrollView, BulkNewStudentsView, ProgressLeaderBoard
+    SectionBulkNewStudentEnrollView, BulkNewStudentsView, ProgressLeaderBoard, ProductsView
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -41,5 +41,6 @@ urlpatterns = [
     url(r'^bulk_enroll_student/', BulkNewStudentsView.as_view()),
     url(r'^bulk_enroll_section/', SectionBulkNewStudentEnrollView.as_view()),
     url(r'^progressleaderboard/', ProgressLeaderBoard.as_view()),
+    url(r'^products/', ProductsView.as_view()),
     url(r'^', include(router.urls)),
 ]

@@ -7,7 +7,7 @@ var webpack = require('webpack');
 var BundleTracker = require('webpack-bundle-tracker');
 var StringReplace = require('string-replace-webpack-plugin');
 var Merge = require('webpack-merge');
-
+var ExtractText = require('extract-text-webpack-plugin');
 var files = require('./webpack-config/file-lists.js');
 var xmoduleJS = require('./common/static/xmodule/webpack.xmodule.config.js');
 
@@ -52,7 +52,7 @@ module.exports = Merge.smart({
         PasswordResetConfirmation: './lms/static/js/student_account/components/PasswordResetConfirmation.jsx',
         StudentAccountDeletion: './lms/static/js/student_account/components/StudentAccountDeletion.jsx',
         StudentAccountDeletionInitializer: './lms/static/js/student_account/StudentAccountDeletionInitializer.js',
-
+        App: './lms/static/js/containers/App/index.js',
         // Learner Dashboard
         EntitlementFactory: './lms/static/js/learner_dashboard/course_entitlement_factory.js',
         EntitlementUnenrollmentFactory: './lms/static/js/learner_dashboard/entitlement_unenrollment_factory.js',
@@ -297,6 +297,17 @@ module.exports = Merge.smart({
             {
                 test: /logger/,
                 loader: 'imports-loader?this=>window'
+            },
+            {
+                test: /\.css$/,
+                loader: ['style-loader', 'css-loader']
+            },
+            {
+                test: /\.scss$/,
+                use: ExtractText.extract({
+                    fallback: 'style-loader',
+                    use: ['css-loader', 'sass-loader']
+                })
             }
         ]
     },

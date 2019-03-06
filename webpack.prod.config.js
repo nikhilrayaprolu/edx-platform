@@ -11,13 +11,13 @@ var optimizedConfig = Merge.smart(commonConfig, {
     output: {
         filename: '[name].[chunkhash].js'
     },
-    devtool: false,
+    devtool: 'source-map',
     plugins: [
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('production')
+            'process.env.NODE_ENV': JSON.stringify('development')
         }),
         new webpack.LoaderOptionsPlugin({  // This may not be needed; legacy option for loaders written for webpack 1
-            minimize: true
+            debug: true
         }),
         new webpack.optimize.UglifyJsPlugin(),
         new webpack.optimize.CommonsChunkPlugin({

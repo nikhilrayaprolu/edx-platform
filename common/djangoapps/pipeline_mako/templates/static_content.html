@@ -163,6 +163,19 @@ source, template_path = Loader(engine).load_template_source(path)
       });
     </script>
 </%def>
+<%def name="renderOnlyReact(component, props={})">
+    <%doc>
+        Wrapper function to load a React component via webpack() and render
+        it onto the page, passing an optional context object via props.
+        component: (string) The component to render, as specified by the name
+        of its Webpack entry point.
+        id: (string) A unique id to apply to the component's container div.
+        props: (dict, optional) An object containing data to pass into the
+        component as props.
+    </%doc>
+
+    ${HTML(render_bundle(component))}
+</%def>
 
 <%def name="require_module(module_name, class_name)">
     <%doc>

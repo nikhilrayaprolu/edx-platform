@@ -44,11 +44,11 @@ class SiteConfigurationListSerializer(SiteConfigurationSerializer):
 
 class SiteSerializer(serializers.ModelSerializer):
     configuration = SiteConfigurationSerializer(read_only=True)
-    customDomainStatus = serializers.SerializerMethodField('custom_domain_status', read_only=True)
+    #customDomainStatus = serializers.SerializerMethodField('custom_domain_status', read_only=True)
 
     class Meta:
         model = Site
-        fields = ('id', 'name', 'domain', 'configuration', 'customDomainStatus')
+        fields = ('id', 'name', 'domain', 'configuration')
 
     def create(self, validated_data):
         site = super(SiteSerializer, self).create(validated_data)

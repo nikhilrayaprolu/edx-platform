@@ -356,6 +356,22 @@ class TeacherNewProfile(APIView):
 
         return Response(user_mini_profile.data, status=200)
 
+class UpdateTeacher(APIView):
+    def get_object(self, pk):
+        try:
+            return UserMiniProfile.objects.get(pk=pk)
+        except UserMiniProfile.DoesNotExist:
+            raise Http404
+
+    def put(self, request, pk):
+        teacher = self.get_object(pk)
+        serializer = UserMiniProfileSerializer(teacher, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ClassView(APIView):
     def get_class_organization(self, organization):
         try:

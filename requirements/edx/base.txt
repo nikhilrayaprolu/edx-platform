@@ -246,7 +246,7 @@ django-extensions==1.5.9
 #django-tiers==0.0.1
 git+https://github.com/appsembler/django-tiers.git@master
 dj-database-url==0.4.2
-git+https://github.com/appsembler/edx-organizations.git@0.4.10-appsembler3
+git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4
 fcm-django
 git+https://github.com/YoungSphere/Shareblock.git
 git+https://github.com/YoungSphere/Wagtail_Young.git

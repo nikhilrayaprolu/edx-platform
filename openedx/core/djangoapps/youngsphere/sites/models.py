@@ -104,40 +104,65 @@ import django
 #         """
 #         return settings.LMS_BASE in self.domain
 
+class Page(models.Model):
+    pageid = models.CharField(max_length=20, primary_key=True)
+    ownertype = models.CharField(max_length=50)
+    def __str__(self):
+        return self.pageid
+
+
 class School(models.Model):
     organization = models.OneToOneField(Organization, related_name='school_profile')
     schoolname = models.CharField(max_length=50, blank=True, null=True)
-    principal = models.CharField(max_length=30, blank=True, null=True)
+    principal = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     contact_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    website = models.CharField(max_length=20, blank=True, null=True)
+    website = models.CharField(max_length=50, blank=True, null=True)
     board = models.CharField(max_length=20, blank=True, null=True)
     schoollogo = models.ImageField(blank=True, upload_to='school_logo', default='school_logo/no-image.jpg')
+    page_id = models.ForeignKey(Page, null=True, blank=True, related_name="school")
+    school_feed = models.BooleanField(default=False)
+    def __str__(self):
+        return self.schoolname
+
 
 class Class(models.Model):
     organization = models.ForeignKey(Organization)
     class_level = models.CharField(max_length=5)
     display_name = models.CharField(max_length=10)
     num_sections = models.IntegerField(default=0)
+    def __str__(self):
+        return self.class_level + ' ' + self.organization.short_name
+
 
 class Section(models.Model):
     section_class = models.ForeignKey(Class)
     section_name = models.CharField(max_length=5)
-    description = models.CharField(max_length=144, blank=True, null=True)
+    description = models.CharField(max_length=200, blank=True, null=True)
+    def __str__(self):
+        return self.section_name + ' ' + self.section_class.display_name
+
 
 class Course(models.Model):
     organization = models.ForeignKey(Organization)
     course_class = models.ForeignKey(Class)
     course_section = models.ForeignKey(Section)
-    course_name = models.CharField(max_length=50)
+    course_name = models.CharField(max_length=50, blank=True, null=True)
     description = models.CharField(max_length=144, blank=True, null=True)
     year = models.IntegerField(default=2020)
-    course_id = models.CharField(max_length=80, blank=True, null=True)
+    courseno = models.CharField(max_length=50, blank=True, null=True)
+    courserun = models.CharField(max_length=30, blank=True, null=True)
+    course_id = models.CharField(max_length=80, primary_key=True, default='default_course')
     course_status = models.CharField(max_length=3, blank=True, null=True)
+    page_id = models.ForeignKey(Page, null=True, blank=True, related_name="course")
+    def __str__(self):
+        return self.course_name
+
+
 
 class UserMiniProfile(models.Model):
-    user = models.ForeignKey(User, related_name='mini_user_profile')
+    user = models.OneToOneField(User, primary_key=True)
     first_name = models.CharField(max_length=40, blank=True, null=True)
     last_name = models.CharField(max_length=40, blank=True, null=True)
     gender = models.CharField(max_length=1, blank=True, null=True)
@@ -145,11 +170,46 @@ class UserMiniProfile(models.Model):
     contact_number = models.CharField(max_length=40, blank=True, null=True)
     birthday = models.DateField(blank=True, null=True)
     is_staff = models.BooleanField(blank=True)
-    school = models.ForeignKey(School,blank = True,null=True)
+    school = models.ForeignKey(School, blank=True, null=True)
+    page_id = models.OneToOneField(Page, null=True, blank=True, related_name="user")
+    def __str__(self):
+        return self.first_name + ' ' + self.last_name
+
+
 
 class UserSectionMapping(models.Model):
-    user = models.ForeignKey(User, related_name='section')
+    user = models.OneToOneField(User, related_name='section')
     section = models.ForeignKey(Section)
+    def __str__(self):
+        return self.user.username + ' ' + self.section.section_name
+
+class FeedModerator(models.Model):
+    page = models.ForeignKey(Page, related_name='moderators')
+    moderator = models.ForeignKey(User, related_name='page_moderated')
+
+class GlobalGroup(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length= 400)
+    page_id = models.OneToOneField(Page, related_name="globalgroup", primary_key=True)
+
+class SchoolGroup(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length= 400)
+    page_id = models.OneToOneField(Page, related_name="schoolgroup", primary_key=True)
+    organization = models.ForeignKey(Organization, blank=True, null=True, related_name='organization_groups')
+    globalgroup = models.ForeignKey(GlobalGroup, null=True, blank=True, related_name="organizationgroups")
+
+class CourseGroup(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length= 400)
+    page_id = models.ForeignKey(Page, null=True, blank=True, related_name="coursegroup")
+    organization = models.ForeignKey(Organization, blank=True, null=True, related_name='organization_course_groups')
+    course_id = models.ForeignKey(Course, blank=True, null=True, related_name='course_group')
+
+class Follow(models.Model):
+    from_page = models.ForeignKey(Page, related_name='from_follow')
+    to_page = models.ForeignKey(Page, related_name='to_follow')
+    type_of_page = models.CharField(max_length=10)
 
 class Notification(models.Model):
     user_id = models.ForeignKey(User)

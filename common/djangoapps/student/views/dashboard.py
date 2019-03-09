@@ -789,7 +789,9 @@ def student_dashboard(request):
     engagementscores = StudentSocialEngagementProgressClassScore()
     class_id = None
     user_section = None
-    user_section_relation = user.section.first()
+    user_section_relation = None
+    if hasattr(user, 'section'):
+        user_section_relation = user.section.first()
     user_engagement_score = 0
     class_average_score = 0
     user_position = None
@@ -881,7 +883,6 @@ def student_dashboard(request):
     context.update({
         'resume_button_urls': resume_button_urls
     })
-
     response = render_to_response('dashboard.html', context)
     set_user_info_cookie(response, request)
     return response

@@ -1,0 +1,101 @@
+
+* {
+  all: initial;
+  /* allow all elements to inherit these properties from the root "body" div */
+   font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: inherit;
+}
+
+@import 'default';
+ @import '~react-activity-feed/dist/index';
+ @import '~bootstrap/scss/bootstrap';
+
+#react-app {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-base;
+  line-height: $line-height-base;
+  color: $body-color;
+  text-align: left;
+  background-color: rgb(255, 255, 255);
+}
+
+.title {
+  color: red;
+}
+
+.shadow {
+  box-shadow: 0 0 5px 0;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: white;
+}
+hr {
+    margin: 20px 0;
+    border: 1px solid;
+}
+.btn-primary {
+    margin-right: 5px;
+}
+body {background: #ededed !important; }
+#react-feed {
+  width: 676px;
+  margin: 0 auto
+}
+.ys-card {
+  width: 676px;
+  margin: 0 auto
+}
+.ys-group-card-img-top {
+  height: 300px;
+}
+input[type="submit"], input[type="button"], button, .button {
+  text-shadow: none !important;
+}
+
+#profileImage {
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+  background: #512DA8;
+  font-size: 20px;
+  color: #fff;
+  text-align: center;
+  line-height: 50px;
+  display:inline-block;
+}
+.raf-user-bar__details {
+  margin: 10px;
+}
+.raf-user-bar__username {
+  display: inline-block;
+  padding-left: 10px;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  button {
+    width: 300px;
+  }
+}
+.select-container {
+  padding: 0 ;
+  margin: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  div {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin: 5px;
+  }
+}

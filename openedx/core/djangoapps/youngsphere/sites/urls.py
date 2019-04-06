@@ -1,13 +1,17 @@
 from django.conf import settings
 from django.conf.urls import url, include
+from django.contrib.auth.decorators import login_required
 from rest_framework.routers import DefaultRouter
+
+from openedx.core.djangoapps.youngsphere.sites.social_back import CourseWallView
 from .api import SiteConfigurationViewSet, SiteViewSet, FileUploadView, SiteCreateView, \
     UsernameAvailabilityView, DomainAvailabilityView, \
     SchoolView, ClassView, SectionView, CourseView, UserMiniProfileView, UserSectionMappingView, SchoolProfile, \
     TeacherProfile, TeacherNewProfile, NewClassView, NewSectionView, StudentProfile, StudentNewProfile, \
     StudentEnrollView, NewStudentEnrollView, TeacherEnrollView, NewTeacherEnrollView, BulkNewStudentEnrollView, \
-    SectionBulkNewStudentEnrollView, BulkNewStudentsView, ProgressLeaderBoard, ProductsView, UpdateTeacher
-
+    SectionBulkNewStudentEnrollView, BulkNewStudentsView, ProgressLeaderBoard, ProductsView, UpdateTeacher, SEPView, \
+    SocialWallView, ExtraContentView
+from . import social_back
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register(r'site-configurations', SiteConfigurationViewSet)
@@ -43,5 +47,19 @@ urlpatterns = [
     url(r'^bulk_enroll_section/', SectionBulkNewStudentEnrollView.as_view()),
     url(r'^progressleaderboard/', ProgressLeaderBoard.as_view()),
     url(r'^products/', ProductsView.as_view()),
+    url(r'^engagement/', SEPView.as_view()),
+    url(r'^social_wall/', SocialWallView.as_view()),
+    url(r'^extra_content/', ExtraContentView.as_view()),
+    #socialwall urls
+    url(r'friendslist', social_back.friends, name='friends'),
+    url(r'groupstats', social_back.GroupStats.as_view()),
+    url(r'me', social_back.me, name='me'),
+    url(r'search/user', social_back.search, name='search'),
+    url(r'^getfeed/(?P<feedgroup>[\w\-]+)/(?P<userid>[\w\-]+)', social_back.getfeed, name='getfeed'),
+    url(r'^follow', social_back.FollowApi.as_view()),
+    url(r'^moderator/(?P<feedgroup>[\w\-]+)', social_back.isModerator.as_view()),
+    url(r'^approve/', social_back.ApproveFeed.as_view()),
+    url(r'', social_back.index, name='index'),
     url(r'^', include(router.urls)),
+    url(r"^course_wall", login_required(CourseWallView.as_view()), name="course_wall_dashboard")
 ]

@@ -142,6 +142,9 @@ from lms.envs.common import (
     RETIREMENT_SERVICE_WORKER_USERNAME,
     RETIREMENT_STATES,
     PROGRESS_DETACHED_VERTICAL_CATEGORIES, PROGRESS_DETACHED_CATEGORIES,
+    STREAM_API_KEY,
+    STREAM_APP_ID,
+    STREAM_API_SECRET,
 
     # Methods to derive settings
     _make_mako_template_dirs,

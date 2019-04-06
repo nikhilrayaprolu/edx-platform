@@ -20,3 +20,10 @@ admin.site.register(Class)
 admin.site.register(Course)
 admin.site.register(Section)
 admin.site.register(UserSectionMapping)
+
+#socialwall admin integration
+admin.site.register(Page)
+admin.site.register(FeedModerator)
+admin.site.register(GlobalGroup)
+admin.site.register(SchoolGroup)
+admin.site.register(Follow)

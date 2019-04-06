@@ -250,3 +250,4 @@ git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4
 fcm-django
 git+https://github.com/YoungSphere/Shareblock.git
 git+https://github.com/YoungSphere/Wagtail_Young.git
+stream-python

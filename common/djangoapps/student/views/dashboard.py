@@ -791,7 +791,7 @@ def student_dashboard(request):
     user_section = None
     user_section_relation = None
     if hasattr(user, 'section'):
-        user_section_relation = user.section.first()
+        user_section_relation = user.section
     user_engagement_score = 0
     class_average_score = 0
     user_position = None

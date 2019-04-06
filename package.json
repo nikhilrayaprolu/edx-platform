@@ -39,6 +39,10 @@
     "node-sass": "4.7.2",
     "picturefill": "3.0.2",
     "popper.js": "1.12.9",
+    "postcss-initial": "^3.0.0",
+    "postcss-loader": "^3.0.0",
+    "postcss-prepend-selector": "^0.3.1",
+    "postcss-pseudo-class-any-link": "^6.0.0",
     "prop-types": "15.6.0",
     "raw-loader": "0.5.1",
     "react": "^16.8.3",
@@ -64,7 +68,11 @@
     "webpack-bundle-tracker": "0.2.1",
     "webpack-merge": "4.1.1",
     "whatwg-fetch": "2.0.3",
-    "which-country": "1.0.0"
+    "which-country": "1.0.0",
+    "postcss-pseudo-class-any-link": "6.0.0",
+    "postcss-initial" : "3.0.0",
+    "postcss-loader": "3.0.0",
+    "postcss-prepend-selector": "0.3.1"
   },
   "devDependencies": {
     "@edx/stylelint-config-edx": "1.1.0",

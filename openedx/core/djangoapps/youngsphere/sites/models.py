@@ -162,7 +162,7 @@ class Course(models.Model):
 
 
 class UserMiniProfile(models.Model):
-    user = models.OneToOneField(User, primary_key=True)
+    user = models.OneToOneField(User, primary_key=True, related_name='mini_user_profile')
     first_name = models.CharField(max_length=40, blank=True, null=True)
     last_name = models.CharField(max_length=40, blank=True, null=True)
     gender = models.CharField(max_length=1, blank=True, null=True)
@@ -188,8 +188,10 @@ class FeedModerator(models.Model):
     moderator = models.ForeignKey(User, related_name='page_moderated')
 
 class GlobalGroup(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length= 400)
+    name = models.CharField(max_length=50, blank=True, null=True)
+    longname = models.CharField(max_length=100, blank=True, null=True)
+    description = models.CharField(max_length= 400, blank=True, null=True)
+    group_image = models.ImageField(blank=True, upload_to='school_logo', default='school_logo/no-image.jpg')
     page_id = models.OneToOneField(Page, related_name="globalgroup", primary_key=True)
 
 class SchoolGroup(models.Model):
@@ -198,13 +200,6 @@ class SchoolGroup(models.Model):
     page_id = models.OneToOneField(Page, related_name="schoolgroup", primary_key=True)
     organization = models.ForeignKey(Organization, blank=True, null=True, related_name='organization_groups')
     globalgroup = models.ForeignKey(GlobalGroup, null=True, blank=True, related_name="organizationgroups")
-
-class CourseGroup(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length= 400)
-    page_id = models.ForeignKey(Page, null=True, blank=True, related_name="coursegroup")
-    organization = models.ForeignKey(Organization, blank=True, null=True, related_name='organization_course_groups')
-    course_id = models.ForeignKey(Course, blank=True, null=True, related_name='course_group')
 
 class Follow(models.Model):
     from_page = models.ForeignKey(Page, related_name='from_follow')

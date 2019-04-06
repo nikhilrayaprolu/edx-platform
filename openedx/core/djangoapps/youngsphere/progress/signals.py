@@ -84,7 +84,7 @@ def handle_cmc_post_save_signal(sender, instance, created, **kwargs):  # pylint:
     if is_valid_progress_module(content_id):
         class_id = None
         user_section = None
-        user_section_relation = instance.user.section.first()
+        user_section_relation = instance.user.section
         if user_section_relation:
             user_section = user_section_relation.section
         if user_section and user_section.section_class:

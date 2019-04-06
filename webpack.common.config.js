@@ -25,7 +25,7 @@ var defineFancyFooter = /\}\).call\(\s*this(\s|.)*define(\s|.)*\);/;
 var defineFooter = new RegExp('(' + defineCallFooter.source + ')|('
                              + defineDirectFooter.source + ')|('
                              + defineFancyFooter.source + ')', 'm');
-
+console.log(process.env.STATIC_ROOT_LMS);
 module.exports = Merge.smart({
     context: __dirname,
 
@@ -53,6 +53,7 @@ module.exports = Merge.smart({
         StudentAccountDeletion: './lms/static/js/student_account/components/StudentAccountDeletion.jsx',
         StudentAccountDeletionInitializer: './lms/static/js/student_account/StudentAccountDeletionInitializer.js',
         App: './lms/static/js/containers/App/index.js',
+        Notification: './lms/static/js/containers/Notification/index.js',
         // Learner Dashboard
         EntitlementFactory: './lms/static/js/learner_dashboard/course_entitlement_factory.js',
         EntitlementUnenrollmentFactory: './lms/static/js/learner_dashboard/entitlement_unenrollment_factory.js',
@@ -79,7 +80,7 @@ module.exports = Merge.smart({
         XModuleShim: 'xmodule/js/src/xmodule.js',
 
         VerticalStudentView: './common/lib/xmodule/xmodule/assets/vertical/public/js/vertical_student_view.js',
-        commons: 'babel-polyfill',
+        commons: 'babel-polyfill'
     },
 
     output: {
@@ -91,11 +92,11 @@ module.exports = Merge.smart({
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.NamedModulesPlugin(),
         new BundleTracker({
-            path: process.env.STATIC_ROOT_CMS,
+            path: process.env.STATIC_ROOT_CMS || '/openedx/staticfiles',
             filename: 'webpack-stats.json'
         }),
         new BundleTracker({
-            path: process.env.STATIC_ROOT_LMS,
+            path: process.env.STATIC_ROOT_LMS || '/openedx/staticfiles',
             filename: 'webpack-stats.json'
         }),
         new webpack.ProvidePlugin({
@@ -122,6 +123,9 @@ module.exports = Merge.smart({
             name: 'commons',
             filename: 'commons.js',
             minChunks: 3
+        }),
+        new ExtractText({
+            filename: '[name]-[hash].css'
         })
     ],
 
@@ -169,6 +173,32 @@ module.exports = Merge.smart({
                         ]
                     }
                 )
+            },
+            {
+                test: files.reactfiles,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        plugins: [
+                            'transform-object-assign',
+                            'transform-object-rest-spread'
+                        ],
+                        presets: [
+                            [
+                                'env',
+                                {
+                                    targets: {
+                                        browsers: [
+                                            'last 2 versions',
+                                            'IE >= 11'
+                                        ]
+                                    }
+                                }
+                            ],
+                            'babel-preset-react'
+                        ]
+                    }
+                }
             },
             {
                 test: /\.(js|jsx)$/,
@@ -306,7 +336,21 @@ module.exports = Merge.smart({
                 test: /\.scss$/,
                 use: ExtractText.extract({
                     fallback: 'style-loader',
-                    use: ['css-loader', 'sass-loader']
+                    use: ['css-loader', {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              ident: 'postcss',
+              plugins: () => [
+                /* eslint-disable global-require */
+                require('postcss-pseudo-class-any-link'),
+                require('postcss-initial')(),
+                require('postcss-prepend-selector')({ selector: '.react-app ' }),
+                /* eslint-enable global-require */
+              ],
+            },
+          },
+                        'sass-loader']
                 })
             }
         ]

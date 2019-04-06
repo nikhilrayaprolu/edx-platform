@@ -112,5 +112,8 @@ module.exports = {
         path.resolve(__dirname, '../openedx/features/learner_profile/static/learner_profile/js/views/share_modal_view.js'),
         path.resolve(__dirname, '../node_modules/edx-ui-toolkit/src/js/dropdown-menu/dropdown-menu-view.js'),
         path.resolve(__dirname, '../node_modules/edx-ui-toolkit/src/js/breadcrumbs/breadcrumbs-view.js')
+    ],
+    reactfiles: [
+        path.resolve(__dirname, '../lms/static/js/containers/App/index.js')
     ]
 };

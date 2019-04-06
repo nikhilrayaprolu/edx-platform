@@ -6,6 +6,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.conf import settings
 from django.db import transaction
 from django.utils.decorators import method_decorator
+from openedx.core.djangoapps.youngsphere.sites.serializers import UserMiniProfileSerializer
 
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -139,6 +140,13 @@ class RegistrationViewSet(viewsets.ViewSet):
             # meaning we don't have to send a password reset email
             user.is_active = password_provided
             user.save()
+            user_mini_profile = UserMiniProfileSerializer(data=data)
+            if user_mini_profile.is_valid():
+                user_mini_profile.save()
+            else:
+                print(user_mini_profile.errors)
+                return Response(user_mini_profile.data, status=200)
+
             user_id = user.id
             if not password_provided:
                 success = send_password_reset_email(request)

@@ -1,63 +1,73 @@
 import React from 'react';
 import {
-    Activity,
-    CommentField, CommentList,
     FlatFeed,
-    LikeButton,
-    StatusUpdateForm,
 } from "react-activity-feed";
+import UnApprovedPlaceholder from "../unapprovedplaceholder";
+import UnApprovedFooter from "../UnApprovedFooter";
+import {feedrequest, getCookie} from "../../utils";
+const UnMountActivityContext = React.createContext(null);
 class UnApprovedGroup extends React.Component {
     constructor(props) {
         super(props);
         console.log("inside unapproved", this.props)
+        this.state = {
+            unmountedactivities: null,
+        };
+        this.activityapprove = this.activityapprove.bind(this);
+        this.feedgroup = "unapprovedgroup";
+        this.feedid = this.props.groupid;
 
-
     }
-    getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-    }
-    feedrequest(client, feedGroup, userId, options) {
-        var url = new URL(window.location.origin+'/getfeed/'+feedGroup+'/'+userId);
-        delete options['reactions'];
-        url.search = new URLSearchParams(options)
-        console.log(url)
-        return fetch(url).then(result =>{
-            console.log(result)
-            return result.json()
+    activityapprove(id, approve, decline){
+        var csrftoken = getCookie('csrftoken');
+        let params = {
+            feed_id: id,
+            feed_group: this.props.groupid,
+            approve: approve,
+            decline: decline
+        };
+        fetch("/youngwall/approve/",{
+            headers: {
+                "Content-Type": 'application/json; charset=utf-8',
+                'X-CSRFToken': csrftoken
+            },
+            method: 'post',
+            body: JSON.stringify(params),
         })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    console.log('approved successfully')
+                },
+                (error) => {
+                    console.log('approve unsuccessful')
+                }
+            )
     }
+
     render () {
         console.log("came into feed");
-    return (
-        <React.Fragment>
-         <FlatFeed
-          feedGroup = "globalgroup"
-          userId = { this.props.match.params.groupid }
-          doFeedRequest = {this.feedrequest}
-          Activity={(props) =>
-              <Activity {...props}
-                Footer={() => (
-                  <div style={ {padding: '8px 16px'} }>
-                  </div>
-                )}
-              />
-            }
-          />
+        let presentvalue = this.state.unmountedactivities;
+        console.log(presentvalue);
+        return (
+            <React.Fragment>
+                <FlatFeed
+                    feedGroup = {this.feedgroup}
+                    userId = {this.feedid}
+                    doFeedRequest = {feedrequest}
+                    Placeholder = {UnApprovedPlaceholder}
+                    Activity={(props) => {
+                        console.log(props, presentvalue);
+                        return <UnApprovedFooter {...props} presentvalue={presentvalue} activityapprove={this.activityapprove} />
+                    }
+                    }
+
+
+                />
 
             </React.Fragment>
 
-    )
-  }
+        )
+    }
 }
 export default UnApprovedGroup

@@ -70,7 +70,7 @@ def task_update_user_engagement(user_id, course_id, param, increment=True, items
         )
         class_id = None
         user_section = None
-        user_section_relation = user.section.first()
+        user_section_relation = user.section
         if user_section_relation:
             user_section = user_section_relation.section
         if user_section and user_section.section_class:

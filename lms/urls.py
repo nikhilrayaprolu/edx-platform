@@ -20,6 +20,8 @@ from courseware.views.views import CourseTabView, EnrollStaffView, StaticCourseT
 from debug import views as debug_views
 from django_comment_common.models import ForumsConfig
 from django_openid_auth import views as django_openid_auth_views
+
+
 from lms.djangoapps.certificates import views as certificates_views
 from lms.djangoapps.discussion import views as discussion_views
 from lms.djangoapps.instructor.views import coupons as instructor_coupons_views
@@ -57,7 +59,7 @@ from wagtail.wagtailadmin import urls as wagtailadmin_urls
 from wagtail.wagtaildocs import urls as wagtaildocs_urls
 from wagtail.wagtailcore import urls as wagtail_urls
 from django.views.generic import TemplateView
-
+from openedx.core.djangoapps.youngsphere.sites import social_back
 
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     django_autodiscover()
@@ -652,6 +654,12 @@ urlpatterns += [
         ),
         include('openedx.features.course_experience.urls'),
     ),
+    url(
+        r'^courses/{}/course_wall/'.format(
+            settings.COURSE_ID_PATTERN,
+        ),
+        social_back.CourseWallView.as_view()
+    ),
 
     # Course bookmarks UI in LMS
     url(
@@ -1088,6 +1096,7 @@ urlpatterns += [
 urlpatterns += [
     # youngsphere management console endpoint for student enrollment
     url(r'^youngspheresite/api/', include('openedx.core.djangoapps.youngsphere.sites.urls', namespace='youngspheresite-api')),
+    url(r'^youngwall/', include('openedx.core.djangoapps.youngsphere.sites.urls', namespace='youngspherewall')),
 ]
 
 # Branch.io Text Me The App

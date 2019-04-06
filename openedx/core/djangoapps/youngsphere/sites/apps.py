@@ -8,7 +8,6 @@ class SitesConfig(AppConfig):
     label = 'youngsphere_sites'
 
     def ready(self):
+        import openedx.core.djangoapps.youngsphere.sites.signals
         #from .models import patched_clear_site_cache
-
         #pre_save.connect(patched_clear_site_cache, sender='site_configuration.SiteConfiguration')
-        pass

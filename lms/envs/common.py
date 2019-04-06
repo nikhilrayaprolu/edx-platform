@@ -584,7 +584,8 @@ CONTEXT_PROCESSORS = [
     'openedx.core.djangoapps.site_configuration.context_processors.configuration_context',
 
     # Mobile App processor (Detects if request is from the mobile app)
-    'mobile_api.context_processor.is_from_mobile_app'
+    'mobile_api.context_processor.is_from_mobile_app',
+    'openedx.core.djangoapps.youngsphere.sites.socialcontext'
 ]
 
 # Django templating
@@ -3507,3 +3508,9 @@ USER_STATE_BATCH_SIZE = 5000
 from openedx.core.djangoapps.plugins import plugin_apps, plugin_settings, constants as plugin_constants
 INSTALLED_APPS.extend(plugin_apps.get_apps(plugin_constants.ProjectType.LMS))
 plugin_settings.add_plugins(__name__, plugin_constants.ProjectType.LMS, plugin_constants.SettingsType.COMMON)
+
+
+############# Social Wall #######################
+STREAM_API_KEY = 'ed97ces2ru44'
+STREAM_API_SECRET = 'dkdd2xh9ah4ezk2m3x7g7n59xq85wmvp367vgvgcunzad8fyndmdrw4sppux6ppt'
+STREAM_APP_ID = '48327'

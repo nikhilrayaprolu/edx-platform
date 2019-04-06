@@ -8,6 +8,7 @@ import {
 } from "react-activity-feed";
 import {browserHistory} from 'react-router';
 import {withRouter} from "react-router-dom";
+import UserBar from "../YSUserBar";
 class Home extends React.Component {
 
     render () {
@@ -23,6 +24,9 @@ class Home extends React.Component {
           Activity={(props) =>
               <Activity {...props}
                   onClickUser = {(user) => {console.log(user);this.props.history.push(user.id)}}
+                        Header={() => (
+                                          <UserBar {...props} />
+                                      )}
                 Footer={() => (
                   <div style={ {padding: '8px 16px'} }>
                     <LikeButton {...props} />

@@ -41,7 +41,7 @@ from student.forms import PasswordResetFormNoActive
 from student.views import create_account_with_params
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from student.roles import CourseInstructorRole, CourseStaffRole
-from student.models import CourseEnrollment
+from student.models import CourseEnrollment, UserProfile
 from enrollment.serializers import CourseEnrollmentSerializer
 
 
@@ -80,9 +80,6 @@ class SiteConfigurationViewSet(viewsets.ModelViewSet):
 
 class FileUploadView(views.APIView):
     parser_classes = (MultiPartParser,)
-    # TODO: oauth token isn't present after step 3 in signup, fix later
-    #permission_classes = (AMCAdminPermission,)
-
     def post(self, request, format=None):
         file_obj = request.data['file']
         file_path = self.handle_uploaded_file(file_obj, request.GET.get('filename'))
@@ -106,9 +103,6 @@ class SiteCreateView(generics.CreateAPIView):
     authentication_classes = (
         TokenAuthentication,
     )
-
-    #permission_classes = (ApiKeyHeaderPermission,)
-
 
 class UsernameAvailabilityView(APIView):
     def get(self, request, username, format=None):
@@ -134,25 +128,6 @@ class SchoolView(viewsets.ModelViewSet):
     serializer_class = SchoolSerializer
     authentication_classes = (JwtAuthentication, OAuth2AuthenticationAllowInactiveUser,)
     permission_classes = (IsAuthenticated,)
-
-# class ClassView(viewsets.ModelViewSet):
-#     queryset = Class.objects.all()
-#     serializer_class = ClassSerializer
-#     authentication_classes = (OAuth2AuthenticationAllowInactiveUser,)
-#     permission_classes = (IsAuthenticated,)
-
-
-# class SectionView(viewsets.ModelViewSet):
-#     queryset = Section.objects.all()
-#     serializer_class = SectionSerializer
-#     authentication_classes = (OAuth2AuthenticationAllowInactiveUser,)
-#     permission_classes = (IsAuthenticated,)
-
-# class CourseView(viewsets.ModelViewSet):
-#     queryset = Course.objects.all()
-#     serializer_class = CourseSerializer
-#     authentication_classes = (OAuth2AuthenticationAllowInactiveUser, JwtAuthentication,)
-#     permission_classes = (IsAuthenticated,)
 
 class UserMiniProfileView(viewsets.ModelViewSet):
     queryset = UserMiniProfile.objects.all()
@@ -615,7 +590,6 @@ class NewStudentEnrollView(APIView):
                         status=200)
 
 class BulkNewStudentEnrollView(APIView):
-
     def post(self, request):
         data = request.data
         user_ids = data['user_ids']
@@ -629,7 +603,6 @@ class BulkNewStudentEnrollView(APIView):
                         status=200)
 
 class SectionBulkNewStudentEnrollView(APIView):
-
     def post(self, request):
         data = request.data
         destination_course_key_string = data['destination_course_key']
@@ -644,7 +617,6 @@ class SectionBulkNewStudentEnrollView(APIView):
                         status=200)
 
 class StudentEnrollView(APIView):
-
     def get(self, request, course_key):
         destination_course_key = CourseKey.from_string(course_key)
         users = CourseEnrollment.objects.filter(course=destination_course_key).values_list('user',flat=True)
@@ -689,7 +661,7 @@ class ProgressLeaderBoard(APIView):
         engagementscores = StudentSocialEngagementProgressClassScore()
         class_id = None
         user_section = None
-        user_section_relation = user.section.first()
+        user_section_relation = user.section
         user_engagement_score = 0
         class_average_score = 0
         user_position = None
@@ -719,3 +691,20 @@ class ProductsView(View):
     template_name = 'products.html'
     def get(self, request, *args, **kwargs):
         return render_to_response(self.template_name)
+
+class SEPView(View):
+    template_name = 'student_engagement.html'
+    def get(self, request, *args, **kwargs):
+        return render_to_response(self.template_name)
+
+class SocialWallView(View):
+    template_name = 'social_wall.html'
+    def get(self, request, *args, **kwargs):
+        return render_to_response(self.template_name)
+
+class ExtraContentView(View):
+    template_name = 'extra_content.html'
+    def get(self, request, *args, **kwargs):
+        return render_to_response(self.template_name)
+
+

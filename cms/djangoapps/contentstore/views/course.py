@@ -845,7 +845,6 @@ def create_course_api(request):
             data['year'] = request.data.get('year')
             data['description'] = request.data.get('description')
             data['course_id'] = str(new_course.id)
-
             data['course_status'] = request.data.get('course_status')
 
             young_course = CourseSerializer(data=data)

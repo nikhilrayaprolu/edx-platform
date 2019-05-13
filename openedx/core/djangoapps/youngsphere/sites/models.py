@@ -173,7 +173,7 @@ class UserMiniProfile(models.Model):
     school = models.ForeignKey(School, blank=True, null=True)
     page_id = models.OneToOneField(Page, null=True, blank=True, related_name="user")
     def __str__(self):
-        return self.first_name + ' ' + self.last_name
+        return (self.first_name or '') + ' ' + (self.last_name or '')
 
 
 

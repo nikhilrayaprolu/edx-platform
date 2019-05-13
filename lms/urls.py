@@ -60,6 +60,7 @@ from wagtail.wagtaildocs import urls as wagtaildocs_urls
 from wagtail.wagtailcore import urls as wagtail_urls
 from django.views.generic import TemplateView
 from openedx.core.djangoapps.youngsphere.sites import social_back
+from openedx.core.djangoapps.youngsphere.sites.api import SEPView, SocialWallView, ExtraContentView
 
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     django_autodiscover()
@@ -1096,8 +1097,12 @@ urlpatterns += [
 urlpatterns += [
     # youngsphere management console endpoint for student enrollment
     url(r'^youngspheresite/api/', include('openedx.core.djangoapps.youngsphere.sites.urls', namespace='youngspheresite-api')),
-    url(r'^youngwall/', include('openedx.core.djangoapps.youngsphere.sites.urls', namespace='youngspherewall')),
+    url(r'^youngwall/', include('openedx.core.djangoapps.youngsphere.sites.urlssocial', namespace='youngspherewall')),
+    url(r'^social_wall/', SocialWallView.as_view()),
+    url(r'^extra_content/',ExtraContentView.as_view()),
+    url(r'^student_engagement/', SEPView.as_view()),
 ]
+
 
 # Branch.io Text Me The App
 if settings.BRANCH_IO_KEY:

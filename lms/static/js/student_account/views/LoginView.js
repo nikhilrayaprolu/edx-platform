@@ -52,6 +52,7 @@
                 this.hideAuthWarnings = data.hideAuthWarnings;
                 this.pipelineUserDetails = data.pipelineUserDetails;
                 this.enterpriseName = data.enterpriseName;
+                this.schoollogo = data.schoollogo;
 
                 this.listenTo(this.model, 'sync', this.saveSuccess);
                 this.listenTo(this.resetModel, 'sync', this.resetEmail);
@@ -65,6 +66,7 @@
                 // we can perform variable interpolation using sprintf
                     context: {
                         fields: fields,
+                        schoollogo: this.schoollogo,
                         currentProvider: this.currentProvider,
                         syncLearnerProfileData: this.syncLearnerProfileData,
                         providers: this.providers,

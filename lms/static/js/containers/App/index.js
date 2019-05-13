@@ -10,6 +10,7 @@ import SchoolFeed from "../../components/School";
 import CourseGroup from "../../components/Course";
 import SearchUsers from "../../components/searchfilter";
 import GroupStats from "../../components/GroupStats";
+import Followers from "../../components/Followers";
 import ReactDOM from 'react-dom';
 import {BrowserRouter} from "react-router-dom/";
 import '../../scss/index.scss';
@@ -30,6 +31,7 @@ class App extends React.Component {
           <Route path='/youngwall/search/users/' component={SearchUsers}/>
           <Route path='/youngwall/unapprovedgroup/:groupid' component={UnApprovedGroup}/>
           <Route path='/youngwall/friends' component={Friends}/>
+          <Route path='/youngwall/myfollowers' component={Followers}/>
           <Route path='/youngwall/school/:schoolid' component={SchoolFeed}/>
           <Route path='/youngwall/school' component={SchoolFeed}/>
           <Route path='/courses/:courseid/course_wall/' component={CourseGroup}/>

@@ -3514,3 +3514,16 @@ plugin_settings.add_plugins(__name__, plugin_constants.ProjectType.LMS, plugin_c
 STREAM_API_KEY = 'ed97ces2ru44'
 STREAM_API_SECRET = 'dkdd2xh9ah4ezk2m3x7g7n59xq85wmvp367vgvgcunzad8fyndmdrw4sppux6ppt'
 STREAM_APP_ID = '48327'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DATE_FORMAT': (
+        "%d/%m/%Y",
+    ),
+    "DATE_INPUT_FORMATS":[
+    ("%d/%m/%Y"),
+    ("%Y-%m-%d")
+]
+}

@@ -7,7 +7,7 @@
     <a href="#login" class="form-toggle" data-type="register"><%- gettext("Create an Account.") %></a>
 </div>
 <% } %>
-
+<img src="<%= context.schoollogo %>" alt="npslogo" border="0" style="display:block; margin:auto;">
 <% // Hide SSO related messages if we are not in the SSO pipeline.  %>
 <% if (context.enterpriseName && context.currentProvider) { %>
     <% if (context.pipelineUserDetails && context.pipelineUserDetails.email) { %>
@@ -28,7 +28,6 @@
 <% } %>
 
 <form id="login" class="login-form" tabindex="-1" method="POST">
-
     <p class="sr">
         <% if ( context.providers.length > 0 && !context.currentProvider || context.hasSecondaryProviders ) { %>
             <%- gettext("Sign in here using your email address and password, or use one of the providers listed below.") %>

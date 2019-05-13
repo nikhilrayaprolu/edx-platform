@@ -12,18 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='coursegroup',
-            name='course_id',
-        ),
-        migrations.RemoveField(
-            model_name='coursegroup',
-            name='organization',
-        ),
-        migrations.RemoveField(
-            model_name='coursegroup',
-            name='page_id',
-        ),
         migrations.AddField(
             model_name='globalgroup',
             name='group_image',
@@ -43,8 +31,5 @@ class Migration(migrations.Migration):
             model_name='globalgroup',
             name='name',
             field=models.CharField(blank=True, max_length=50, null=True),
-        ),
-        migrations.DeleteModel(
-            name='CourseGroup',
         ),
     ]

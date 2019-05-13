@@ -2,7 +2,6 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib.auth.decorators import login_required
 from rest_framework.routers import DefaultRouter
-
 from openedx.core.djangoapps.youngsphere.sites.social_back import CourseWallView
 from .api import SiteConfigurationViewSet, SiteViewSet, FileUploadView, SiteCreateView, \
     UsernameAvailabilityView, DomainAvailabilityView, \
@@ -10,7 +9,7 @@ from .api import SiteConfigurationViewSet, SiteViewSet, FileUploadView, SiteCrea
     TeacherProfile, TeacherNewProfile, NewClassView, NewSectionView, StudentProfile, StudentNewProfile, \
     StudentEnrollView, NewStudentEnrollView, TeacherEnrollView, NewTeacherEnrollView, BulkNewStudentEnrollView, \
     SectionBulkNewStudentEnrollView, BulkNewStudentsView, ProgressLeaderBoard, ProductsView, UpdateTeacher, SEPView, \
-    SocialWallView, ExtraContentView
+    SocialWallView, ExtraContentView, SectionByClassView
 from . import social_back
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -34,6 +33,7 @@ urlpatterns = [
     url(r'^class/(?P<pk>[0-9]+)/', ClassView.as_view()),
     url(r'^class/', NewClassView.as_view()),
     url(r'^section/(?P<pk>[0-9]+)/', SectionView.as_view()),
+    url(r'^sectionbyclass/(?P<pk>[0-9]+)/', SectionByClassView.as_view()),
     url(r'^section/', NewSectionView.as_view()),
     url(r'^student/(?P<pk>[0-9]+)/', StudentProfile.as_view()),
     url(r'^student/', StudentNewProfile.as_view()),
@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^enroll_teacher/(?P<course_key>[\w\-\+\:]+)/', TeacherEnrollView.as_view()),
     url(r'^enroll_teacher/', NewTeacherEnrollView.as_view()),
     url(r'^bulk_enroll_student/', BulkNewStudentEnrollView.as_view()),
-    url(r'^bulk_enroll_student/', BulkNewStudentsView.as_view()),
+    url(r'^bulk_add_student/', BulkNewStudentsView.as_view()),
     url(r'^bulk_enroll_section/', SectionBulkNewStudentEnrollView.as_view()),
     url(r'^progressleaderboard/', ProgressLeaderBoard.as_view()),
     url(r'^products/', ProductsView.as_view()),
@@ -51,15 +51,6 @@ urlpatterns = [
     url(r'^social_wall/', SocialWallView.as_view()),
     url(r'^extra_content/', ExtraContentView.as_view()),
     #socialwall urls
-    url(r'friendslist', social_back.friends, name='friends'),
-    url(r'groupstats', social_back.GroupStats.as_view()),
-    url(r'me', social_back.me, name='me'),
-    url(r'search/user', social_back.search, name='search'),
-    url(r'^getfeed/(?P<feedgroup>[\w\-]+)/(?P<userid>[\w\-]+)', social_back.getfeed, name='getfeed'),
-    url(r'^follow', social_back.FollowApi.as_view()),
-    url(r'^moderator/(?P<feedgroup>[\w\-]+)', social_back.isModerator.as_view()),
-    url(r'^approve/', social_back.ApproveFeed.as_view()),
-    url(r'', social_back.index, name='index'),
+
     url(r'^', include(router.urls)),
-    url(r"^course_wall", login_required(CourseWallView.as_view()), name="course_wall_dashboard")
 ]

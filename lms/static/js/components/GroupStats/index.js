@@ -1,6 +1,7 @@
 import React from 'react';
 import FollowButton from "../followbutton";
 import {handlefollow} from "../../utils";
+import {getCookie} from "../../utils";
 
 class GroupStats extends React.Component {
     constructor(props) {
@@ -24,8 +25,15 @@ class GroupStats extends React.Component {
 
     }
     componentWillMount() {
-
-        fetch("/youngwall/groupstats")
+        var csrftoken = getCookie('csrftoken');
+        console.log("added csrftoken", csrftoken);
+        fetch("/youngwall/groupstatslist", {
+        credentials: 'include',
+        headers: {
+            contentType: 'application/json; charset=utf-8',
+            'X-CSRFToken': csrftoken
+        },
+    })
             .then(res => res.json())
             .then(
                 (result) => {
@@ -57,7 +65,7 @@ class GroupStats extends React.Component {
                         </a>
                     </div>
                     <div className="col-md-6">
-                        <h4><a href={"/" + type + item.page_id}>{item.name}</a></h4>
+                        <h4><a href={"/youngwall/" + type + "/" + item.page_id}>{item.name}</a></h4>
                         <p>{item.description}<br/>
                         </p>
                     </div>

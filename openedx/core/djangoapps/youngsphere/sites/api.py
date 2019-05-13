@@ -43,7 +43,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from student.roles import CourseInstructorRole, CourseStaffRole
 from student.models import CourseEnrollment, UserProfile
 from enrollment.serializers import CourseEnrollmentSerializer
-
+from django.db import IntegrityError
 
 class SiteViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Site.objects.all()
@@ -124,10 +124,11 @@ class DomainAvailabilityView(APIView):
 
 
 class SchoolView(viewsets.ModelViewSet):
+    authentication_classes = (JwtAuthentication,)
+    permission_classes = (IsAuthenticated,)
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
-    authentication_classes = (JwtAuthentication, OAuth2AuthenticationAllowInactiveUser,)
-    permission_classes = (IsAuthenticated,)
+
 
 class UserMiniProfileView(viewsets.ModelViewSet):
     queryset = UserMiniProfile.objects.all()
@@ -386,6 +387,20 @@ class SectionView(APIView):
         sections_serializer = SectionSerializer(sections, many=True)
         return Response(sections_serializer.data)
 
+class SectionByClassView(APIView):
+    def get_section_class(self, section_class):
+        try:
+            sections = Section.objects.filter(section_class=section_class)
+            print(sections)
+            return sections
+        except Section.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        sections = self.get_section_class(pk)
+        sections_serializer = SectionSerializer(sections, many=True)
+        return Response(sections_serializer.data)
+
 
 class CourseView(APIView):
     def get_course_organization(self, organization):
@@ -616,6 +631,7 @@ class SectionBulkNewStudentEnrollView(APIView):
         return Response({'success':True},
                         status=200)
 
+
 class StudentEnrollView(APIView):
     def get(self, request, course_key):
         destination_course_key = CourseKey.from_string(course_key)
@@ -630,27 +646,45 @@ class StudentEnrollView(APIView):
 
 class BulkNewStudentsView(APIView):
     def post(self, request):
+        print(request.data)
         users = request.data['users']
+        school = request.data['school']
+        print(type(users))
+        import ast
+        users = ast.literal_eval(users)
         for user in users:
-            user_model = User.objects.create_user(user['username'], user['email'], user['password'])
-            profile = UserProfile(user=user_model)
-            profile.name = user['name']
-            profile.save()
+            try:
+                with transaction.atomic():
+                    user_model = User.objects.create_user(user['username'], user['email'], user['password'])
+                    profile = UserProfile(user=user_model)
+                    profile.name = user['name']
+                    profile.save()
+            except IntegrityError as e:
+                user_model = User.objects.get(username=user['username'])
             data = user
             data['is_staff'] = "False"
+            data['school'] = school
             data['user'] = user_model.id
             data['birthday'] = data['birthday'][:10]
-            print(data)
-            user.is_active = True
-            user.save()
+            #print(data)
+            user_model.is_active = True
+            user_model.save()
             user_mini_profile = UserMiniProfileSerializer(data=data)
+            #print(user_mini_profile)
             if user_mini_profile.is_valid():
-                user_mini_profile.save()
+                try:
+                    with transaction.atomic():
+                        user_mini_profile.save()
+                except IntegrityError as e:
+                    continue
             else:
                 print(user_mini_profile.errors)
+            print(data)
             user_section_mapping_serializer = UserSectionMappingSerializer(data=data)
             if user_section_mapping_serializer.is_valid():
                 user_section_mapping_serializer.save()
+            else:
+                print(user_section_mapping_serializer.errors)
         return Response({'success': True},
                             status=200)
 

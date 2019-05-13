@@ -11,6 +11,8 @@ export default class Friends extends React.Component {
             isLoaded: false,
             items: [],
             non_friend_items: [],
+            following_teachers: [],
+            not_following_teachers: [],
             userid: null,
             username: "",
             school: "",
@@ -32,6 +34,8 @@ export default class Friends extends React.Component {
                         isLoaded: true,
                         items: result.friends,
                         non_friend_items: result.non_friends,
+                        following_teachers: result.following_teachers,
+                        not_following_teachers: result.not_following_teachers,
                         userid: result.userid
                     });
                 },
@@ -62,6 +66,8 @@ export default class Friends extends React.Component {
                         isLoaded: true,
                         items: result.friends,
                         non_friend_items: result.non_friends,
+                        following_teachers: result.following_teachers,
+                        not_following_teachers: result.not_following_teachers,
                         userid: result.userid
                     });
                 },
@@ -93,12 +99,12 @@ export default class Friends extends React.Component {
             <div className="col-md-12 border-bottom" key={item.pk}>
                 <div className="row">
                     <div className="col-md-2">
-                        <a href={"/" + item.username}>
-                        <div id="profileImage">{item.username[0]}</div>
+                        <a href={"/youngwall/" + item.username}>
+                        <div id="profileImage">{item.name[0]}</div>
                         </a>
                     </div>
                     <div className="col-md-6">
-                        <h4><a href={"/" + item.username}>{item.name}</a></h4>
+                        <h4><a href={"/youngwall/" + item.username}>{item.name}</a></h4>
                         <p>School: {item.schoolname}<br/>
                         Class: {item.classname}<br/>
                         Section: {item.section}</p>
@@ -112,7 +118,7 @@ export default class Friends extends React.Component {
         )
     }
     render () {
-        const { error, isLoaded, items, non_friend_items } = this.state;
+        const { error, isLoaded, items, non_friend_items, following_teachers, not_following_teachers } = this.state;
         if (error) {
             return <React.Fragment><div>Error: {error.message}</div></React.Fragment>;
         } else if (!isLoaded) {
@@ -120,9 +126,9 @@ export default class Friends extends React.Component {
         } else {
             let friends = "";
             let teachers = "";
-            if( items.filter(item => !item.is_staff).length!==0 ||  non_friend_items.filter(item => !item.is_staff).length!==0)
+            if( items.length!==0 ||  non_friend_items.length!==0)
                 friends = "Friends";
-            if( items.filter(item => item.is_staff).length!==0 ||  non_friend_items.filter(item => item.is_staff).length!==0)
+            if( following_teachers.length!==0 ||  not_following_teachers.length!==0)
                 teachers = "Teachers";
             if(items.length === 0 && non_friend_items.length === 0)
                 friends = "No results";
@@ -164,19 +170,19 @@ export default class Friends extends React.Component {
                             <h1>{friends}</h1>
                             <div className="row">
                                 {
-                                    items.filter(item => !item.is_staff).map(item => this.displayitem(item, true))
+                                    items.map(item => this.displayitem(item, true))
                                 }
                                 {
-                                    non_friend_items.filter(item => !item.is_staff).map(item => this.displayitem(item, false))
+                                    non_friend_items.map(item => this.displayitem(item, false))
                                 }
                             </div>
                             <h1>{teachers}</h1>
                             <div className="row">
                                 {
-                                    items.filter(item => item.is_staff).map(item => this.displayitem(item, true))
+                                    following_teachers.map(item => this.displayitem(item, true))
                                 }
                                 {
-                                    non_friend_items.filter(item => item.is_staff).map(item => this.displayitem(item, false))
+                                    not_following_teachers.map(item => this.displayitem(item, false))
                                 }
                             </div>
                         </div>

@@ -72,6 +72,10 @@ def index(request):
     if domain and 'edge.edx.org' in domain:
         return redirect(reverse("signin_user"))
 
+    if configuration_helpers.get_current_site_orgs():
+        return redirect(reverse("signin_user"))
+
+
     #  we do not expect this case to be reached in cases where
     #  marketing and edge are enabled
     return student.views.index(request, user=request.user)

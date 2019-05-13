@@ -46,7 +46,6 @@ export function doupdaterequest(params, feedgroup, feedid) {
         return result.json()
     })
 }
-
 export function handlefollow(from_page, to_page, type_of_page) {
     var csrftoken = getCookie('csrftoken');
     var params =  {
@@ -54,7 +53,7 @@ export function handlefollow(from_page, to_page, type_of_page) {
         to_page: to_page,
         type_of_page: type_of_page
     };
-    fetch("/api/follow/",{
+    fetch("/youngwall/follow/",{
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json; charset=utf-8',
@@ -73,6 +72,9 @@ export function handlefollow(from_page, to_page, type_of_page) {
             })
 }
 
+export function removeComment(id) {
+    fetch("/youngwall/delete_reaction?id=" + id).then((res) => res);
+}
 
 export function humanizeTimestamp(timestamp) {
   const time = moment.utc(timestamp); // parse time as UTC

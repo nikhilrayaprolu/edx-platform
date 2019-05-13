@@ -149,6 +149,7 @@ class ClassSerializer(serializers.ModelSerializer):
 
 class SectionSerializer(serializers.ModelSerializer):
     section_class = serializers.PrimaryKeyRelatedField(queryset=Class.objects.all())
+    section_class_level = serializers.ReadOnlyField(source='section_class.class_level')
     class Meta:
         model = Section
         fields = '__all__'
@@ -166,7 +167,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
 class UserMiniProfileSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
+    birthday = serializers.DateField(format="%d/%m/%Y")
     class Meta:
         model = UserMiniProfile
         fields = '__all__'
@@ -186,6 +187,7 @@ class UserMiniReadOnlyProfileSerializer(serializers.ModelSerializer):
     school = serializers.SlugRelatedField(read_only=True,
                                           source='school.page_id',
         slug_field='pageid')
+    birthday = serializers.DateField(format="%d/%m/%Y")
 
     class Meta:
         model = UserMiniProfile
@@ -237,12 +239,13 @@ class FollowSerializer(serializers.ModelSerializer):
 class FriendSerializer(serializers.Serializer):
     pk = serializers.IntegerField()
     email = serializers.EmailField()
-    birthday = serializers.DateField()
+    birthday = serializers.DateField(format="%d/%m/%Y")
     username = serializers.CharField()
     schoolname = serializers.CharField()
     classname = serializers.CharField()
     section = serializers.CharField()
     name = serializers.CharField()
+    is_staff = serializers.CharField()
 
 
 class FeedModeratorSerializer(serializers.ModelSerializer):

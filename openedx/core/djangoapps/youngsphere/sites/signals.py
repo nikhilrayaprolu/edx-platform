@@ -22,13 +22,14 @@ def new_stream_user(sender, instance, **kwargs):
     try:
         client.users.add(
             instance.user.username,
-            {"name": instance.first_name + ' ' + instance.last_name
+            {"name": (instance.first_name or '') + ' ' + (instance.last_name or '')
              },
         )
     except:
+        print((instance.first_name or '') + ' ' + (instance.last_name or ''))
         client.users.update(
             instance.user.username,
-            {"name": instance.first_name + ' ' + instance.last_name
+            {"name": (instance.first_name or '') + ' ' + (instance.last_name or '')
              },
         )
 

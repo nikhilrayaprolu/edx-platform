@@ -69,8 +69,8 @@
                         institution_login: null,
                         hinted_login: null
                     };
-
                     this.platformName = options.platform_name;
+                    this.schoollogo = options.schoollogo
                     this.supportURL = options.support_link;
                     this.passwordResetSupportUrl = options.password_reset_support_link;
                     this.createAccountOption = options.account_creation_allowed;
@@ -127,6 +127,7 @@
 
                         this.subview.login = new LoginView({
                             fields: data.fields,
+                            schoollogo: this.schoollogo,
                             model: model,
                             resetModel: this.resetModel,
                             thirdPartyAuth: this.thirdPartyAuth,

@@ -54,6 +54,7 @@ module.exports = Merge.smart({
         StudentAccountDeletionInitializer: './lms/static/js/student_account/StudentAccountDeletionInitializer.js',
         App: './lms/static/js/containers/App/index.js',
         Notification: './lms/static/js/containers/Notification/index.js',
+        SideBar: './lms/static/js/components/SideBar/index.js',
         // Learner Dashboard
         EntitlementFactory: './lms/static/js/learner_dashboard/course_entitlement_factory.js',
         EntitlementUnenrollmentFactory: './lms/static/js/learner_dashboard/entitlement_unenrollment_factory.js',

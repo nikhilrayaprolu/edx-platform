@@ -1,5 +1,6 @@
 import React from 'react';
 import { humanizeTimestamp } from '../../utils';
+import { Dropdown, Link } from 'react-activity-feed';
 
 /**
  * Component is described here.
@@ -7,11 +8,46 @@ import { humanizeTimestamp } from '../../utils';
  * @example ./examples/UserBar.md
  */
 export default class UserBar extends React.Component {
-  render() {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isLoaded: false,
+            userid: ""
+        };
+    }
+    componentDidMount() {
+        fetch('/youngwall/me')
+            .then(res => res.json())
+            .then((result) => {
+                this.setState({
+                    isLoaded: true,
+                    userid: result,
+                });
+            }, (error) => {
+                this.setState({
+                    isLoaded: true,
+                    userid: ""
+                })
+            });
+    }
+
+    render() {
+        console.log("testing")
       let timestamp = this.props.activity.time;
-      console.log(this.props.activity)
+      console.log(this.props.activity);
       let username = (this.props.activity.actor.data)? this.props.activity.actor.data.name: this.props.activity.actor;
-    let time = humanizeTimestamp(timestamp);
+      let username_id = (this.props.activity.actor.data)? this.props.activity.actor.data.id: this.props.activity.actor.id;
+        let time = humanizeTimestamp(timestamp);
+        const {isLoaded, userid} = this.state;
+        let renderDropDown = null;
+        console.log(this.props);
+            renderDropDown = (
+                <Dropdown>
+                    <div>
+                        <Link onClick={() => {this.props.onRemoveActivity(this.props.activity.id);}}>Remove</Link>
+                    </div>
+                </Dropdown>
+            );
     return (
       <div className="raf-user-bar">
         <div className="raf-user-bar__details">
@@ -37,14 +73,15 @@ export default class UserBar extends React.Component {
           ) : null}
         </div>
         <React.Fragment>
-            <p className="raf-user-bar__extra">
+            <span className="raf-user-bar__extra">
               <time
                 dateTime={time}
                 title={time}
               >
                 {time}
               </time>
-            </p>
+                {renderDropDown}
+            </span>
         </React.Fragment>
       </div>
     );

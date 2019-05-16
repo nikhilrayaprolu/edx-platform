@@ -17,7 +17,6 @@ import '../../scss/index.scss';
 
 class App extends React.Component {
   render () {
-    console.log(window.apiKey);
     return (
       <StreamApp
         apiKey= {window.apiKey}

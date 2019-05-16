@@ -123,7 +123,7 @@ module.exports = Merge.smart({
             // common/djangoapps/pipeline_mako/templates/static_content.html
             name: 'commons',
             filename: 'commons.js',
-            minChunks: 3
+            minChunks: 4
         }),
         new ExtractText({
             filename: '[name]-[hash].css'
@@ -182,7 +182,9 @@ module.exports = Merge.smart({
                     options: {
                         plugins: [
                             'transform-object-assign',
-                            'transform-object-rest-spread'
+                            'transform-object-rest-spread',
+                            "transform-react-jsx-source",
+                            "add-module-exports"
                         ],
                         presets: [
                             [

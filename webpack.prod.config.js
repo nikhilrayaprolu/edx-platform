@@ -53,7 +53,7 @@ var requireCompatConfig = Merge.smart(optimizedConfig, {
             // common/djangoapps/pipeline_mako/templates/static_content.html
             name: 'commons',
             filename: 'commons.js',
-            minChunks: 3
+            minChunks: 4
         })
     ]
 });

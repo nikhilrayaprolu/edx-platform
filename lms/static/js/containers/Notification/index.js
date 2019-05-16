@@ -3,7 +3,6 @@ import { StreamApp, NotificationDropdown} from 'react-activity-feed';
 import ReactDOM from 'react-dom';
 import {BrowserRouter} from "react-router-dom/";
 import '../../scss/index.scss';
-
 class Notification extends React.Component {
   render () {
     console.log(window.apiKey);

@@ -23,7 +23,6 @@ class App extends React.Component {
         appId= {window.appId}
         token= {window.USER_TOKEN}
       >
-        <NotificationDropdown notify/>
         <Switch>
         <Route exact path='/youngwall/' component={Home}/>
           <Route path='/youngwall/group/:groupid' component={Group}/>

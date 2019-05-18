@@ -94,6 +94,7 @@ def get_course_with_access(user, action, course_key, depth=0, check_if_enrolled=
       these special cases could not only be handled inside has_access, but could
       be plugged in as additional callback checks for different actions.
     """
+    print(course_key)
     course = get_course_by_id(course_key, depth)
     check_course_access(course, user, action, check_if_enrolled, check_survey_complete)
     return course

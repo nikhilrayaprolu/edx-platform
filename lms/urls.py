@@ -659,7 +659,7 @@ urlpatterns += [
         r'^courses/{}/course_wall/'.format(
             settings.COURSE_ID_PATTERN,
         ),
-        social_back.CourseWallView.as_view()
+        social_back.CourseWallView
     ),
 
     # Course bookmarks UI in LMS

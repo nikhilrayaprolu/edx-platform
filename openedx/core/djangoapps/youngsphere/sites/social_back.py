@@ -280,7 +280,7 @@ class isModerator(APIView):
 
     def sub_follow_list_group(self, group_page, intersection_list):
         return Follow.objects.filter(to_page=group_page, from_page__in=intersection_list).count()
-    
+
     def get(self, request, feedgroup):
         print(request.user)
         user_mini_profile = UserMiniReadOnlyProfileSerializer(request.user.mini_user_profile)
@@ -491,30 +491,30 @@ class CourseWallTab(EnrolledTab):
         """
         return True
 
-class CourseWallView(GenericAPIView):
-    def get(self, request, course_id):
-        """
-        Renders the course wall dashboard, which is shown on the "Course" tab.
-        """
-        print(course_id)
-        course_key = CourseKey.from_string(course_id)
-        course = get_course_with_access(request.user, "load", course_key)
-        print(course)
-        user = request.user
-        social_context_page = socialcontext(request)
-        context = {
-            "course": course,
-            "user_info": {
-                "username": user.username,
-                "privileged": has_discussion_privileges(user, course_key),
-                "staff": bool(has_access(user, 'staff', course_key)),
+def CourseWallView(request, course_id):
+    """
+    Renders the course wall dashboard, which is shown on the "Course" tab.
+    """
+    course_key = CourseKey.from_string(course_id)
+    course = get_course_with_access(request.user, "load", course_key)
+    user = request.user
+    print(user)
+    social_context_page = socialcontext(request)
+    context = {
+        "course_key": course_id,
+        "course": course,
+        "user_info": {
+            "username": user.username,
+            "privileged": has_discussion_privileges(user, course_key),
+            "staff": bool(has_access(user, 'staff', course_key)),
 
 
-            },
-            "uses_bootstrap": True,
-        }
-        context.update(social_context_page)
-        return render_to_response("courseware/course_wall.html", context)
+        },
+        "uses_bootstrap": True,
+    }
+    print('context:', context)
+    context.update(social_context_page)
+    return render_to_response("courseware/course_wall.html", context)
 
 @login_required
 def remove_comment(request):

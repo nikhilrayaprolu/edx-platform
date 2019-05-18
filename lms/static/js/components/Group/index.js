@@ -154,7 +154,7 @@ class Group extends React.Component {
                     <div className="card ys-card">
                         <img className="card-img-top ys-group-card-img-top" src={this.state.group_details.group_image}
                              alt="Card image cap"
-                             onError={"this.src='http://www.gstatic.com/tv/thumb/persons/1083/1083_v9_ba.jpg';"}/>
+                             onError={(e)=>{e.target.onerror = null; e.target.src="http://www.gstatic.com/tv/thumb/persons/1083/1083_v9_ba.jpg"}}/>
                         <div className="card-body">
                             <h5 className="card-title">{this.state.group_details.name}</h5>
                             <p className="card-text">{this.state.group_details.description}</p>

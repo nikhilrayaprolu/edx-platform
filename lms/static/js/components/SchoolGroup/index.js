@@ -38,8 +38,8 @@ class SchoolGroup extends React.Component {
         })
     }
     doupdaterequest(params) {
-        console.log(params)
-        params['actor'] = params.actor.id
+        console.log("params:", params)
+        params.actor = 'SU:'+params.actor.id
         var url = new URL(window.location.origin+'/youngwall/getfeed/'+'globalgroup'+'/'+ this.props.schoolgroupid);
         console.log(url)
         var csrftoken = this.getCookie('csrftoken');

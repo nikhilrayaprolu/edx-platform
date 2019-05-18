@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^follow', social_back.FollowApi.as_view()),
     url(r'^moderator/(?P<feedgroup>[\w\-]+)', social_back.isModerator.as_view()),
     url(r'^approve/', social_back.ApproveFeed.as_view()),
-    url(r"^course_wall", login_required(CourseWallView.as_view()), name="course_wall_dashboard"),
+    url(r"^course_wall", login_required(CourseWallView), name="course_wall_dashboard"),
     url(r'', social_back.index, name='index'),
 
 ]

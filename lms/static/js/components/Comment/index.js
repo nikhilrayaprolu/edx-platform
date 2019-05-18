@@ -48,7 +48,6 @@ export default class Comment extends React.Component {
     return (
       <div className="raf-user-bar">
         <div className="raf-user-bar__details">
-            <div id="profileImageIn">{username[0]}</div>
           <p className="raf-user-bar__usernameIn" >
               <strong>{username}</strong> {comment}
           </p>

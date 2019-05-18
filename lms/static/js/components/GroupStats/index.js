@@ -65,7 +65,30 @@ class GroupStats extends React.Component {
                         </a>
                     </div>
                     <div className="col-md-6">
-                        <h4><a href={"/youngwall/" + type + "/" + item.page_id}>{item.name}</a></h4>
+                        <h4><a href={"/youngwall/" + type + '/'+ item.page_id}>{item.name}</a></h4>
+                        <p>{item.description}<br/>
+                        </p>
+                    </div>
+                    <div className="col-md-2">
+                        <FollowButton followed={follow} clicked={() => this.handlefollow(item.page_id, type)}/>
+                    </div>
+                </div>
+
+            </div>
+        )
+    }
+
+    displaycourseitem(item, type, follow) {
+        return (
+            <div className="col-md-12 border-bottom" key={item.page_id}>
+                <div className="row">
+                    <div className="col-md-2">
+                        <a>
+                            <div id="profileImage">{item.name[0]}</div>
+                        </a>
+                    </div>
+                    <div className="col-md-6">
+                        <h4><a href={"/courses/" + item.course_id + '/course_wall/'}>{item.name}</a></h4>
                         <p>{item.description}<br/>
                         </p>
                     </div>
@@ -95,7 +118,7 @@ class GroupStats extends React.Component {
                              item.name = item.course_name
                              item.description = item.description
                                 return item
-                            }).map(item => this.displayitem(item,'course', true))
+                            }).map(item => this.displaycourseitem(item,'course_wall', true))
                         }
                         {
                             courses_not_following_details.map(item => {
@@ -103,7 +126,7 @@ class GroupStats extends React.Component {
                              item.name = item.course_name
                              item.description = item.description
                                 return item
-                            }).map(item => this.displayitem(item,'course', false))
+                            }).map(item => this.displaycourseitem(item,'course_wall', false))
                         }
                     </div>
                     <h1>Available Global Groups</h1>

@@ -40,8 +40,11 @@ def index(request):
         'user_token': user_token,
         'appId': settings.STREAM_APP_ID,
         'apiKey': settings.STREAM_API_KEY,
-        'user': request.user
+        'user': request.user,
+        'school': request.user.mini_user_profile.school or '',
     }
+    if context['school']:
+        context['schoolpage'] = request.user.mini_user_profile.school.page_id.pageid
     return render_to_response('social_dashboard.html', context)
 
 def socialcontext(request):
@@ -242,12 +245,22 @@ def getfeed(request, feedgroup, userid):
 
 
 def GroupStats(request):
-    user_section = request.user.section.section
-    user_follow_courses = Follow.objects.filter(from_page=request.user.mini_user_profile.page_id, type_of_page='course').values_list('to_page')
-    courses_following = Course.objects.filter(course_section = user_section, page_id__in =user_follow_courses)
-    courses_not_following = Course.objects.filter(course_section=user_section).exclude(page_id__in = user_follow_courses)
-    courses_following_details = CourseSerializer(courses_following, many=True).data
-    courses_not_following_details = CourseSerializer(courses_not_following, many=True).data
+    courses_following_details = []
+    courses_not_following_details = []
+
+    try:
+        user_section = request.user.section.section
+        user_follow_courses = Follow.objects.filter(from_page=request.user.mini_user_profile.page_id,
+                                                    type_of_page='course').values_list('to_page')
+        courses_following = Course.objects.filter(course_section=user_section, page_id__in=user_follow_courses)
+        courses_not_following = Course.objects.filter(course_section=user_section).exclude(
+            page_id__in=user_follow_courses)
+        courses_following_details = CourseSerializer(courses_following, many=True).data
+        courses_not_following_details = CourseSerializer(courses_not_following, many=True).data
+    except:
+        pass
+
+
     user_follow_groups = Follow.objects.filter(from_page=request.user.mini_user_profile.page_id, type_of_page='globalgroup').values_list('to_page')
     global_group_following = GlobalGroup.objects.filter(page_id__in = user_follow_groups)
     global_group_not_following = GlobalGroup.objects.exclude(page_id__in=user_follow_groups)

@@ -13,13 +13,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='school',
-            name='id',
-        ),
-        migrations.AlterField(
-            model_name='school',
-            name='organization',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='school_profile', serialize=False, to='organizations.Organization'),
-        ),
+        
     ]

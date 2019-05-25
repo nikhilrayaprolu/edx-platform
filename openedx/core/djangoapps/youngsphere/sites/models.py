@@ -105,7 +105,7 @@ import django
 #         return settings.LMS_BASE in self.domain
 
 class Page(models.Model):
-    pageid = models.CharField(max_length=20, primary_key=True)
+    pageid = models.CharField(max_length=80, primary_key=True)
     ownertype = models.CharField(max_length=50)
     def __str__(self):
         return self.pageid

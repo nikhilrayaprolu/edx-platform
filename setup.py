@@ -33,7 +33,6 @@ setup(
             "static_tab = xmodule.tabs:StaticTab",
             "syllabus = lms.djangoapps.courseware.tabs:SyllabusTab",
             "teams = lms.djangoapps.teams.plugins:TeamsTab",
-            "course_wall = openedx.core.djangoapps.youngsphere.sites.social_back:CourseWallTab",
             "textbooks = lms.djangoapps.courseware.tabs:TextbookTabs",
             "wiki = lms.djangoapps.course_wiki.tab:WikiTab",
         ],

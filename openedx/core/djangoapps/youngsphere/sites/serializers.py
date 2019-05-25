@@ -136,7 +136,7 @@ class SchoolSerializer(serializers.ModelSerializer):
     organization = serializers.SlugRelatedField(queryset=Organization.objects.all(), slug_field='name')
     class Meta:
         model = School
-        fields = ('id','organization', 'schoolname', 'principal', 'email', 'contact_number', 'address', 'website', 'board')
+        fields = ('id','organization', 'schoolname', 'principal', 'email', 'contact_number', 'address', 'website', 'board', 'schoollogo')
 
 
 class ClassSerializer(serializers.ModelSerializer):

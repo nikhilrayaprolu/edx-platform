@@ -10,7 +10,7 @@ class SideBar extends React.Component {
             error: null,
             isLoaded: false,
             username: '',
-            firstname: '',
+            first_name: '',
             email: '',
             followers: '',
             following: '',
@@ -24,7 +24,7 @@ class SideBar extends React.Component {
                     this.setState({
                         isLoaded: true,
                         username: result.username,
-                        firstname: result.firstname,
+                        first_name: result.first_name,
                         email: result.email,
                         followers: result.followers,
                         following: result.following,
@@ -39,7 +39,7 @@ class SideBar extends React.Component {
             )
     }
     render () {
-        const { error, isLoaded, username, firstname, email, followers, following} = this.state;
+        const { error, isLoaded, username, first_name, email, followers, following} = this.state;
         console.log("came into sidebar");
         return (
             <React.Fragment>
@@ -54,7 +54,7 @@ class SideBar extends React.Component {
                             <ul>
                                 <li className="info--username">
                                     <span className="title">Full Name</span>
-                                    <span className="data break-word">{firstname}</span>
+                                    <span className="data break-word">{first_name}</span>
                                 </li>
 
                                 <li className="info--email">

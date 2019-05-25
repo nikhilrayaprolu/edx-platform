@@ -78,7 +78,6 @@ def get_blocks(
 
     # transform
     blocks = course_blocks_api.get_course_blocks(user, usage_key, transformers)
-
     # filter blocks by types
     if block_types_filter:
         block_keys_to_remove = []

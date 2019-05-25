@@ -75,10 +75,10 @@ export default class Followers extends React.Component {
                             <h1>{followers}</h1>
                             <div className="row">
                                 {
-                                    following_followers.filter(item => !item.is_staff).map(item => this.displayitem(item, true))
+                                    following_followers.map(item => this.displayitem(item, true))
                                 }
                                 {
-                                    non_following_followers.filter(item => !item.is_staff).map(item => this.displayitem(item, false))
+                                    non_following_followers.map(item => this.displayitem(item, false))
                                 }
                             </div>
                         </div>

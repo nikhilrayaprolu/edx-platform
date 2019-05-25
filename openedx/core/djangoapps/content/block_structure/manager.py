@@ -60,8 +60,7 @@ class BlockStructureManager(object):
             BlockStructureBlockData - A transformed block structure,
                 starting at starting_block_usage_key.
         """
-        block_structure = collected_block_structure.copy() if collected_block_structure else self.get_collected()
-
+        block_structure = collected_block_structure.copy() if collected_block_structure else self._update_collected()
         if starting_block_usage_key:
             # Override the root_block_usage_key so traversals start at the
             # requested location.  The rest of the structure will be pruned
@@ -73,6 +72,7 @@ class BlockStructureManager(object):
                     unicode(self.root_block_usage_key),
                 )
             block_structure.set_root_block(starting_block_usage_key)
+
         transformers.transform(block_structure)
         return block_structure
 

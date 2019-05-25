@@ -52,6 +52,7 @@ def new_stream_course(sender, instance, **kwargs):
     if not instance.page_id:
         course_page, created = Page.objects.get_or_create(
             pageid=str(instance.course_id.replace('+', '-').replace(':', '-')), ownertype='course')
+        print("course_page being printed", course_page, created)
         instance.page_id = course_page
         instance.save(update_fields=['page_id'])
 

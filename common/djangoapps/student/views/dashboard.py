@@ -886,3 +886,154 @@ def student_dashboard(request):
     response = render_to_response('dashboard.html', context)
     set_user_info_cookie(response, request)
     return response
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_oauth.authentication import OAuth2Authentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+from enrollment.serializers import CourseEnrollmentSerializer
+import stream
+class DashBoardAPI(APIView):
+    authentication_classes = (OAuth2Authentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        user = request.user
+        if not UserProfile.objects.filter(user=user).exists():
+            return redirect(reverse('account_settings'))
+
+        platform_name = configuration_helpers.get_value("platform_name", settings.PLATFORM_NAME)
+
+        # Get the org whitelist or the org blacklist for the current site
+        site_org_whitelist, site_org_blacklist = get_org_black_and_whitelist_for_site()
+        course_enrollments = list(get_course_enrollments(user, site_org_whitelist, site_org_blacklist))
+        youngskills_course_enrollments = list(get_course_enrollments(user, site_org_blacklist, site_org_whitelist))
+        client = stream.connect(settings.STREAM_API_KEY, settings.STREAM_API_SECRET)
+        social_token = client.create_user_token(user.username)
+        context = {
+            'social_token': social_token,
+            'appId': settings.STREAM_APP_ID,
+            'apiKey': settings.STREAM_API_KEY,
+            'school': str(request.user.mini_user_profile.school.page_id or ''),
+            'userid': request.user.username
+        }
+        if context['school']:
+            context['schoolpage'] = request.user.mini_user_profile.school.page_id.pageid
+        # Sort the enrollment pairs by the enrollment date
+        course_enrollments.sort(key=lambda x: x.created, reverse=True)
+
+        # Retrieve the course modes for each course
+        enrolled_course_ids = [enrollment.course_id for enrollment in course_enrollments]
+        __, unexpired_course_modes = CourseMode.all_and_unexpired_modes_for_courses(enrolled_course_ids)
+        course_modes_by_course = {
+            course_id: {
+                mode.slug: mode
+                for mode in modes
+            }
+            for course_id, modes in iteritems(unexpired_course_modes)
+        }
+
+
+        # Construct a dictionary of course mode information
+        # used to render the course list.  We re-use the course modes dict
+        # we loaded earlier to avoid hitting the database.
+        course_mode_info = {
+            enrollment.course_id: complete_course_mode_info(
+                enrollment.course_id, enrollment,
+                modes=course_modes_by_course[enrollment.course_id]
+            )
+            for enrollment in course_enrollments
+        }
+
+        block_courses = frozenset(
+            enrollment.course_id for enrollment in course_enrollments
+            if is_course_blocked(
+                request,
+                CourseRegistrationCode.objects.filter(
+                    course_id=enrollment.course_id,
+                    registrationcoderedemption__redeemed_by=request.user
+                ),
+                enrollment.course_id
+            )
+        )
+
+        enrolled_courses_either_paid = frozenset(
+            enrollment.course_id for enrollment in course_enrollments
+            if enrollment.is_paid_course()
+        )
+
+
+        # Populate the Order History for the side-bar.
+        order_history_list = order_history(
+            user,
+            course_org_filter=site_org_whitelist,
+            org_filter_out_set=site_org_blacklist
+        )
+
+        display_sidebar_on_dashboard = (len(order_history_list))
+
+
+        engagementscores = StudentSocialEngagementProgressClassScore()
+        class_id = None
+        user_section = None
+        user_section_relation = None
+        if hasattr(user, 'section'):
+            user_section_relation = user.section
+        user_engagement_score = 0
+        class_average_score = 0
+        user_position = None
+        leader_board = None
+        if user_section_relation:
+            user_section = user_section_relation.section
+        if user_section and user_section.section_class:
+            class_id = user_section.section_class
+        if class_id:
+            user_engagement_score = engagementscores.get_user_engagement_score(class_id, user.id)
+            if user_engagement_score == None:
+                user_engagement_score = 0
+            class_average_score = engagementscores.get_class_average_engagement_score(class_id)
+            if class_average_score == None:
+                class_average_score = 0
+            user_position = engagementscores.get_user_leaderboard_position(class_id, user_id=user.id)
+            if user_position == None:
+                user_position = 0
+            leader_board = engagementscores.generate_leaderboard(class_id, count=10)
+            print(leader_board)
+        course_enrollment_serializer = CourseEnrollmentSerializer(course_enrollments, many=True)
+        youngskills_course_enrollments_serializer = CourseEnrollmentSerializer(youngskills_course_enrollments, many=True)
+        context.update({
+            'user_engagement_score': user_engagement_score,
+            'class_average_score': class_average_score,
+            'user_position': user_position,
+            'leaderboard': leader_board,
+            #'all_course_modes': course_mode_info,
+            'course_enrollments': course_enrollment_serializer.data,
+            'young_skills': youngskills_course_enrollments_serializer.data,
+            # 'user': user,
+            # 'logout_url': reverse('logout'),
+            # 'platform_name': platform_name,
+            # 'enrolled_courses_either_paid': enrolled_courses_either_paid,
+            # 'provider_states': [],
+            # 'order_history_list': order_history_list,
+            # 'show_program_listing': ProgramsApiConfig.is_enabled(),
+            # 'display_sidebar_on_dashboard': display_sidebar_on_dashboard,
+        })
+        # Gather urls for course card resume buttons.
+        resume_button_urls = _get_urls_for_resume_buttons(user, course_enrollments)
+        context.update({
+            'resume_button_urls': resume_button_urls
+        })
+        for key in context.keys():
+            if type(key) is not str:
+                try:
+                    mydict[str(key)] = mydict[key]
+                except:
+                    try:
+                        mydict[repr(key)] = mydict[key]
+                        print("using repr", context[key])
+                    except:
+                        pass
+                print(context[key])
+        print("worked well till here")
+        print(context.keys())
+        return Response(context, status=200)

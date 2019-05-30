@@ -41,6 +41,8 @@ def is_prerequisite_courses_enabled():
     """
     Returns boolean indicating prerequisite courses enabled system wide or not.
     """
+    print('ENABLE_PREREQUISITE_COURSES', settings.FEATURES.get('ENABLE_PREREQUISITE_COURSES'))
+    print('MILESTONES_APP', settings.FEATURES.get('MILESTONES_APP'))
     return settings.FEATURES.get('ENABLE_PREREQUISITE_COURSES') and settings.FEATURES.get('MILESTONES_APP')
 
 

@@ -216,8 +216,8 @@ def courses(request):
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
     library_list = get_courses(request.user, None, {"display_name__contains": "Library"})
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
-        courses_list = get_courses(request.user, exclude_={"display_name__contains": "Library"})
-
+        courses_list = get_courses(request.user, exclude_={"display_name__contains": "Library"}, youngskills=True)
+        print("reading courses_list", courses_list)
         if configuration_helpers.get_value("ENABLE_COURSE_SORTING_BY_START_DATE",
                                            settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"]):
             courses_list = sort_by_start_date(courses_list)
@@ -226,7 +226,7 @@ def courses(request):
 
     # Add marketable programs to the context.
     programs_list = get_programs_with_type(request.site, include_hidden=False)
-
+    print(courses_list, library_list)
     return render_to_response(
         "courseware/courses.html",
         {

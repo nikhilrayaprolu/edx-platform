@@ -33,10 +33,15 @@ export default class UserBar extends React.Component {
 
     render() {
         console.log("testing")
+
       let timestamp = this.props.activity.time;
       console.log(this.props.activity);
       let username = (this.props.activity.actor.data)? this.props.activity.actor.data.name: this.props.activity.actor;
       let username_id = (this.props.activity.actor.data)? this.props.activity.actor.data.id: this.props.activity.actor.id;
+      if(("parent" in this.props) && this.props.parent=="schooldash"){
+            username = username.slice(0, 8)
+
+        }
         let time = humanizeTimestamp(timestamp);
         const {isLoaded, userid} = this.state;
         let renderDropDown = null;

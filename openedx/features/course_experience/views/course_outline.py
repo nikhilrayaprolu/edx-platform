@@ -20,9 +20,76 @@ from student.models import CourseEnrollment
 from util.milestones_helpers import get_course_content_milestones
 from xmodule.modulestore.django import modulestore
 from ..utils import get_course_outline_block_tree, get_resume_block
-
+import json
 
 DEFAULT_COMPLETION_TRACKING_START = datetime.datetime(2018, 1, 24, tzinfo=UTC)
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_oauth.authentication import OAuth2Authentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+class CourseOutline(APIView):
+    authentication_classes = (OAuth2Authentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+    def get_content_milestones(self, request, course_key):
+        """
+        Returns dict of subsections with prerequisites and whether the prerequisite has been completed or not
+        """
+        def _get_key_of_prerequisite(namespace):
+            return re.sub('.gating', '', namespace)
+
+        all_course_milestones = get_course_content_milestones(course_key)
+
+        uncompleted_prereqs = {
+            milestone['content_id']
+            for milestone in get_course_content_milestones(course_key, user_id=request.user.id)
+        }
+
+        gated_content = {
+            milestone['content_id']: {
+                'completed_prereqs': milestone['content_id'] not in uncompleted_prereqs,
+                'prerequisite': _get_key_of_prerequisite(milestone['namespace'])
+            }
+            for milestone in all_course_milestones
+        }
+
+        return gated_content
+
+    def create_xblock_id_and_name_dict(self, course_block_tree, xblock_display_names=None):
+        """
+        Creates a dictionary mapping xblock IDs to their names, using a course block tree.
+        """
+        if xblock_display_names is None:
+            xblock_display_names = {}
+
+        if course_block_tree.get('id'):
+            xblock_display_names[course_block_tree['id']] = course_block_tree['display_name']
+
+        if course_block_tree.get('children'):
+            for child in course_block_tree['children']:
+                self.create_xblock_id_and_name_dict(child, xblock_display_names)
+
+        return xblock_display_names
+
+    def get(self, request, course_id):
+        print(request.user)
+        course_key = CourseKey.from_string(course_id)
+        course_block_tree = get_course_outline_block_tree(request, course_id)
+        if not course_block_tree:
+            return None
+
+        context = {
+            'blocks': course_block_tree
+        }
+
+        xblock_display_names = self.create_xblock_id_and_name_dict(course_block_tree)
+        gated_content = self.get_content_milestones(request, course_key)
+
+        context['gated_content'] = gated_content
+        context['xblock_display_names'] = xblock_display_names
+
+        return Response(context, status=200)
 
 
 class CourseOutlineFragmentView(EdxFragmentView):
@@ -57,8 +124,11 @@ class CourseOutlineFragmentView(EdxFragmentView):
         gated_content = self.get_content_milestones(request, course_key)
 
         context['gated_content'] = gated_content
+        #print(context['gated_content'])
+        #print(context.keys())
+        #print(json.dumps(context['blocks'], indent=4))
         context['xblock_display_names'] = xblock_display_names
-
+        print(course_overview)
         html = render_to_string('course_experience/course-outline-fragment.html', context)
         return Fragment(html)
 

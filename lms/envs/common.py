@@ -2333,6 +2333,7 @@ INSTALLED_APPS = [
 
     # API Documentation
     'rest_framework_swagger',
+    'react_lms',
 ]
 
 ######################### CSRF #########################################
@@ -3527,3 +3528,12 @@ REST_FRAMEWORK = {
     ("%Y-%m-%d")
 ]
 }
+from react_lms.settings import REACT_LMS, APP_DIR as REACT_APP_DIR, WEBPACK_BUNDLE_DIR_NAME as REACT_WEBPACK_BUNDLE_DIR_NAME, WEBPACK_STATS_FILE as REACT_WEBPACK_STATS_FILE
+WEBPACK_LOADER.update(REACT_LMS_APP={
+    'BUNDLE_DIR_NAME': REACT_WEBPACK_BUNDLE_DIR_NAME,
+    'STATS_FILE': REACT_WEBPACK_STATS_FILE
+    })
+
+MILESTONES_APP = True
+ENABLE_PREREQUISITE_COURSES = True
+

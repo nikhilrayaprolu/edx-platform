@@ -77,6 +77,7 @@ urlpatterns = [
     url(r'', include('student.urls')),
     # TODO: Move lms specific student views out of common code
     url(r'^dashboard/?$', student_views.student_dashboard, name='dashboard'),
+    url(r'^dashboard_api/?$', student_views.DashBoardAPI.as_view(), name='dashboard_api'),
     url(r'^change_enrollment$', student_views.change_enrollment, name='change_enrollment'),
 
     # Event tracking endpoints
@@ -1101,6 +1102,8 @@ urlpatterns += [
     url(r'^social_wall/', SocialWallView.as_view()),
     url(r'^extra_content/',ExtraContentView.as_view()),
     url(r'^student_engagement/', SEPView.as_view()),
+url(r'^react-lms/',
+            include('react_lms.urls', namespace='react-lms')),
 ]
 
 

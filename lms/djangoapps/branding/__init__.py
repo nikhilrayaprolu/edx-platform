@@ -13,7 +13,7 @@ from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
 
-def get_visible_courses(org=None, filter_=None, exclude_=None):
+def get_visible_courses(org=None, filter_=None, exclude_=None, youngskills=False):
     """
     Return the set of CourseOverviews that should be visible in this branded
     instance.
@@ -29,11 +29,10 @@ def get_visible_courses(org=None, filter_=None, exclude_=None):
 
     courses = []
     current_site_orgs = configuration_helpers.get_current_site_orgs()
-
-    if org:
-        # Check the current site's orgs to make sure the org's courses should be displayed
-        if not current_site_orgs or org in current_site_orgs:
-            courses = CourseOverview.get_all_courses(orgs=[org], filter_=filter_, exclude_=exclude_)
+    if youngskills:
+        courses = CourseOverview.get_all_courses(orgs=['edX', 'iiit', 'youngsphere'], filter_=filter_, exclude_=exclude_)
+    elif org:
+        courses = CourseOverview.get_all_courses(orgs=[org], filter_=filter_, exclude_=exclude_)
     elif current_site_orgs:
         # Only display courses that should be displayed on this site
         courses = CourseOverview.get_all_courses(orgs=current_site_orgs, filter_=filter_, exclude_=exclude_)

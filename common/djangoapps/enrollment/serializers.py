@@ -42,6 +42,7 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
     course_end = serializers.DateTimeField(source="end", format=None)
     invite_only = serializers.BooleanField(source="invitation_only")
     course_modes = serializers.SerializerMethodField()
+    course_image_url = serializers.CharField()
 
     def __init__(self, *args, **kwargs):
         self.include_expired = kwargs.pop("include_expired", False)

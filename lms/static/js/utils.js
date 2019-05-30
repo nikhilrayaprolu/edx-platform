@@ -82,3 +82,155 @@ export function humanizeTimestamp(timestamp) {
   // Not in future humanized time
   return moment.min(time, now).from(now);
 }
+
+export let context = {
+    "user_position": {
+        "position": 1,
+        "score": 10
+    },
+    "school": "testschool2",
+    "apiKey": "ed97ces2ru44",
+    "class_average_score": 0,
+    "schoolpage": "testschool2",
+    "young_skills": [
+        {
+            "created": "2019-05-28T10:44:22.077644Z",
+            "mode": "audit",
+            "is_active": true,
+            "course_details": {
+                "course_id": "course-v1:edX+DemoX+Demo_Course",
+                "course_name": "edX Demonstration Course",
+                "enrollment_start": null,
+                "enrollment_end": null,
+                "course_start": "2013-02-05T05:00:00Z",
+                "course_end": null,
+                "invite_only": false,
+                "course_modes": [
+                    {
+                        "slug": "audit",
+                        "name": "Audit",
+                        "min_price": 0,
+                        "suggested_prices": "",
+                        "currency": "usd",
+                        "expiration_datetime": null,
+                        "description": null,
+                        "sku": null,
+                        "bulk_sku": null
+                    }
+                ],
+                "course_image_url": "/asset-v1:edX+DemoX+Demo_Course+type@asset+block@images_course_image.jpg"
+            },
+            "user": "9959485499"
+        },
+        {
+            "created": "2019-05-28T10:43:25.335319Z",
+            "mode": "audit",
+            "is_active": true,
+            "course_details": {
+                "course_id": "course-v1:iiit+iiit+iiit",
+                "course_name": "Library_class_10_math",
+                "enrollment_start": null,
+                "enrollment_end": null,
+                "course_start": "2019-01-01T00:00:00Z",
+                "course_end": null,
+                "invite_only": false,
+                "course_modes": [
+                    {
+                        "slug": "audit",
+                        "name": "Audit",
+                        "min_price": 0,
+                        "suggested_prices": "",
+                        "currency": "usd",
+                        "expiration_datetime": null,
+                        "description": null,
+                        "sku": null,
+                        "bulk_sku": null
+                    }
+                ],
+                "course_image_url": "/asset-v1:iiit+iiit+iiit+type@asset+block@images_course_image.jpg"
+            },
+            "user": "9959485499"
+        }
+    ],
+    "social_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTk1OTQ4NTQ5OSJ9.gL_VGJ2cPpUaSn1WScrD12gODpLHS0jarlvMWw8b3vA",
+    "userid": "9959485499",
+    "user_engagement_score": 10,
+    "resume_button_urls": [
+        "",
+        ""
+    ],
+    "appId": "48327",
+    "course_enrollments": [
+        {
+            "created": "2019-05-18T13:12:27.455377Z",
+            "mode": "audit",
+            "is_active": true,
+            "course_details": {
+                "course_id": "course-v1:testschool2+maths6+3",
+                "course_name": "maths6",
+                "enrollment_start": null,
+                "enrollment_end": null,
+                "course_start": "2019-01-01T00:00:00Z",
+                "course_end": null,
+                "invite_only": false,
+                "course_modes": [
+                    {
+                        "slug": "audit",
+                        "name": "Audit",
+                        "min_price": 0,
+                        "suggested_prices": "",
+                        "currency": "usd",
+                        "expiration_datetime": null,
+                        "description": null,
+                        "sku": null,
+                        "bulk_sku": null
+                    }
+                ],
+                "course_image_url": "/asset-v1:testschool2+maths6+3+type@asset+block@images_course_image.jpg"
+            },
+            "user": "9959485499"
+        },
+        {
+            "created": "2019-05-17T01:49:42.446926Z",
+            "mode": "audit",
+            "is_active": true,
+            "course_details": {
+                "course_id": "course-v1:testschool2+Maths+2",
+                "course_name": "Maths",
+                "enrollment_start": null,
+                "enrollment_end": null,
+                "course_start": "2019-01-01T00:00:00Z",
+                "course_end": null,
+                "invite_only": false,
+                "course_modes": [
+                    {
+                        "slug": "audit",
+                        "name": "Audit",
+                        "min_price": 0,
+                        "suggested_prices": "",
+                        "currency": "usd",
+                        "expiration_datetime": null,
+                        "description": null,
+                        "sku": null,
+                        "bulk_sku": null
+                    }
+                ],
+                "course_image_url": "/asset-v1:testschool2+Maths+2+type@asset+block@images_course_image.jpg"
+            },
+            "user": "9959485499"
+        }
+    ],
+    "leaderboard": {
+        "total_user_count": 37,
+        "queryset": [
+            {
+                "user__username": "9959485499",
+                "score": 10,
+                "user__id": 687,
+                "modified": "2019-05-27T07:16:32.132021Z",
+                "user__mini_user_profile__first_name": "B. AKSHAYA"
+            }
+        ],
+        "course_avg": 0
+    }
+}

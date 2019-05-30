@@ -11,6 +11,8 @@ import CourseGroup from "../../components/Course";
 import SearchUsers from "../../components/searchfilter";
 import GroupStats from "../../components/GroupStats";
 import Followers from "../../components/Followers";
+import CourseOutline from "../../components/CourseOutline";
+import DashBoard from "../../components/DashBoard";
 import ReactDOM from 'react-dom';
 import {BrowserRouter} from "react-router-dom/";
 import '../../scss/index.scss';
@@ -33,8 +35,10 @@ class App extends React.Component {
           <Route path='/youngwall/school/:schoolid' component={SchoolFeed}/>
           <Route path='/youngwall/school' component={SchoolFeed}/>
           <Route path='/courses/:courseid/course_wall/' component={CourseGroup}/>
+          <Route path='/courses/:courseid/course/' component={CourseOutline}/>
           <Route path='/youngwall/groupstats' component={GroupStats}/>
           <Route path='/youngwall/:userid' component={Feed}/>
+          <Route path='/dashboard' component={DashBoard}/>
 
       </Switch>
       </StreamApp>

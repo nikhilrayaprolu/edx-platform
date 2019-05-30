@@ -28,7 +28,7 @@
 </%block>
 % endif
 
-<%block name="pagetitle">${_("Courses")}</%block>
+<%block name="pagetitle">${_("YoungSkills")}</%block>
 
 <main id="main" aria-label="Content" tabindex="-1">
     <section class="find-courses">
@@ -66,6 +66,7 @@
             %endfor
           </ul>
           % else:
+          <h1>Young Skills</h1>
           <ul class="courses-listing">
             %for course in courses:
             <li class="courses-listing-item">

@@ -99,7 +99,7 @@ def courses(request):
 
     if not settings.FEATURES.get('COURSES_ARE_BROWSABLE'):
         raise Http404
-
+    print("working on courses")
     #  we do not expect this case to be reached in cases where
     #  marketing is enabled or the courses are not browsable
     return courseware.views.views.courses(request)

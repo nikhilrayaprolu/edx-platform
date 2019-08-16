@@ -21,7 +21,7 @@ course_sections = blocks.get('children')
 </script>
 <main role="main" class="course-outline" id="main" tabindex="-1">
 
-    % if ((course_sections is not None) and ('youngsphere' in str(course))):
+    % if ((course_sections is not None) and not (('youngsphere' in str(course)) or ('iiit' in str(course)) or ('edX' in str(course)))):
         <button class="btn btn-primary"
                 id="expand-collapse-outline-all-button"
                 aria-expanded="false"

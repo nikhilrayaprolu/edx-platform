@@ -29,7 +29,7 @@ export default class CoursesListItem extends React.Component {
                   </div>
                   <div className="col-md-3">
                       <div className="card-body">
-                          <button type="button" className="btn btn-primary button-courses" style={{borderRadius: '10px%'}} onClick={this.redirect}><a href={'courses/'+this.state.courseData.course_details.course_id}>{this.props.buttontext}</a></button>
+                          <button type="button" className="btn btn-primary button-courses" style={{borderRadius: '10px%'}} onClick={this.redirect}><a style={{textDecorationLine: 'None'}} href={'courses/'+this.state.courseData.course_details.course_id}>{this.props.buttontext}</a></button>
                       </div>
                   </div>
               </div>

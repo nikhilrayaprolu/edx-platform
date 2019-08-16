@@ -23,7 +23,6 @@ class Feed extends React.Component {
                 <FlatFeed
                     options={{reactions: { recent: true } }}
                     feedGroup = "timeline"
-                    userId = {(this.props.match)? this.props.match.params.userid : '9959485499'}
                     notify
                     Activity={(props) =>
                         <Activity {...props}

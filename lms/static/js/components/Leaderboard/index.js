@@ -18,7 +18,7 @@ export default class LeaderBoard extends React.Component {
 
 
     render() {
-        const userlist = this.state.leaderboard.queryset.map((user, i) => <User username={ user.user__username } rank={ i + 1 } img={ "https://cdn2.iconfinder.com/data/icons/budicon-user/16/32-user_-_single-512.png" } score={ user.score } firstname= {user.user__mini_user_profile__first_name} />);
+        const userlist = (this.state.leaderboard)? this.state.leaderboard.queryset.map((user, i) => <User username={ user.user__username } rank={ i + 1 } img={ "https://cdn2.iconfinder.com/data/icons/budicon-user/16/32-user_-_single-512.png" } score={ user.score } firstname= {user.user__mini_user_profile__first_name} />) : null;
 
         return (
             <div className="leadercontainer">

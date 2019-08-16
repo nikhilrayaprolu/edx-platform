@@ -14,8 +14,15 @@ export default class Dashboard extends React.Component {
             error: null,
             isLoaded: false,
             context: null,
+            showsocialwall: null,
+            showyoungskills: null,
+            showschoolpage: null
 
         };
+        console.log(window.showsocialwall)
+        console.log("checking social wall",window.showsocialwall=="False")
+
+
     }
     componentWillMount() {
         fetch("/dashboard_api/")
@@ -34,6 +41,21 @@ export default class Dashboard extends React.Component {
                     })
                 }
             )
+        if(window.showsocialwall=="False"){
+            this.setState({
+                showsocialwall: 'social_wall',
+                    });
+            console.log(this.state.showsocialwall)
+        }
+
+        if(window.showyoungskills=="False")
+            this.setState({
+                showyoungskills: 'young_skills',
+                    });
+        if(window.showschoolpage=="False")
+            this.setState({
+                showschoolpage: 'school_page',
+                    });
     }
     render () {
         const { error, isLoaded, context} = this.state;
@@ -49,13 +71,13 @@ export default class Dashboard extends React.Component {
                                     </div>
                                 </div>
                                   <br/>
-                                <div className="card">
+                                <div className={"card " + this.state.showyoungskills}>
                                     <div className="card-body shadowown">
                                         <CoursesList coursesData={this.state.context['young_skills']} section_title={'Subscribed YoungSkills'} currentcard={'skills'} />
                                     </div>
                                 </div>
                                         <br/>
-                                <div className="card">
+                                <div className={"card " + this.state.showsocialwall}>
                                     <div className="card-body shadowown">
                                         <Feed apiKey={this.state.context.apiKey} appId={this.state.context.appId} social_token={this.state.context.social_token} section_title={'EduSocial Wall'}/>
                                     </div>
@@ -76,13 +98,13 @@ export default class Dashboard extends React.Component {
                                     </div>
                                 </div>
                                 <br />
-                                <div className="card">
+                                <div className={"card " + this.state.showschoolpage}>
                                     <div className="card-body shadowown">
                                         <SchoolFeed apiKey={this.state.context.apiKey} appId={this.state.context.appId} social_token={this.state.context.social_token} feedgroup={'school'} feedid={this.state.context.school} section_title={'School Page'}/>
                                     </div>
                                 </div>
                                 <br />
-                                <div className="card">
+                                <div className={"card " + this.state.showsocialwall}>
                                     <div className="card-body shadowown">
                                         <GroupStats userid={this.state.context.userid} section_title={'Groups'}/>
                                     </div>

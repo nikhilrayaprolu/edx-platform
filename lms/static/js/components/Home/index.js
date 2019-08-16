@@ -42,9 +42,6 @@ class Home extends React.Component {
             return <h1>Loading...</h1>;
     return (
         <React.Fragment>
-        <StatusUpdateForm
-          feedGroup="user"
-        />
          <FlatFeed
           options={{reactions: { recent: true } }}
           notify
